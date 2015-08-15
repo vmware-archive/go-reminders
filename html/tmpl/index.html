@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Reminders</title>
+  <meta name="description" content="All Reminders">
+  <meta name="author" content="Tom Hite, VMware, Inc.">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/html/skeleton/css/normalize.css">
+  <link rel="stylesheet" href="/html/skeleton/css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/html/skeleton/images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+  <div class="row">
+  <div class="one column">&nbsp;</div>
+  <div class="ten columns">
+    <h4>All Your Reminders</h4>
+    {{if .}}
+    <table class="u-full-width">
+      <thead>
+        <th>Reminder</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </thead>
+      <tbody>
+      {{range $reminder := .}}
+      <tr>
+        <td><p>{{$reminder.Message}}</p></td>
+        <td>
+          <form action="/html/tmpl/edit" method="post">
+            <input type="hidden" name="guid" value="{{$reminder.Guid}}">
+            <input class="button-primary" type="submit" value="Edit">
+          </form>
+        </td>
+        <td>
+          <form action="/html/tmpl/delete" method="post">
+            <input type="hidden" name="guid" value="{{$reminder.Guid}}">
+            <input class="button-primary" type="submit" value="Delete">
+          </form>
+        </td>
+      {{end}}
+      </tbody>
+    </table>
+    {{else}}
+    <center><h4>Goodness, you are an elephant &mdash; No reminders!</h4></center>
+    {{end}}
+  </div>
+  <div class="one column">&nbsp;</div>
+  </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>

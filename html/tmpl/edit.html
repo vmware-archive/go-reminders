@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Reminders</title>
+  <meta name="description" content="All Reminders">
+  <meta name="author" content="Tom Hite, VMware, Inc.">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/html/skeleton/css/normalize.css">
+  <link rel="stylesheet" href="/html/skeleton/css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/html/skeleton/images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+
+  <div class="row" style="margin-top: 15%">
+  <div class="one column">&nbsp;</div>
+  <div class="ten columns">
+    <h4>Editing Message:</h4>
+    <form action="/html/tmpl/save" method="post">
+      <input type="hidden" name="guid" value="{{.Guid}}">
+      <input class="u-full-width" type="text" maxlength="255" name="message" value="{{.Message}}">
+      <input class="button-primary" type="submit" value="Save">
+      <a class="button" href="/html/tmpl/index">Cancel</a>
+    </form>
+  </div>
+  <div class="one column">&nbsp;</div>
+  </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
