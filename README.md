@@ -19,7 +19,8 @@ For example:
 This service requires a valid Go language environment and gnu make.
 
 # License and Author
-Author: Tom Hite, VMware
+Copyright (c) 2015 VMware, Inc. All Rights Reserved
+Author: Tom Hite, VMware, Inc.
 License: MIT
 
 For details of the license, see the LICENSE file.
