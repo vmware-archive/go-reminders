@@ -1,4 +1,4 @@
-/vmworld
+/go-reminders
 *.log
 *.a
 *.so

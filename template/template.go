@@ -1,14 +1,14 @@
 // Copyright (c) 2015 VMware
 // Author: Tom Hite (thite@vmware.com)
 //
-// License: MIT (see https://github.com/tdhite/vmorld/LICENSE).
+// License: MIT (see https://github.com/tdhite/go-reminders/LICENSE).
 //
 package template
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/tdhite/vmworld/reminders"
+	"github.com/tdhite/go-reminders/reminders"
 	"io/ioutil"
 	"log"
 	"net/http"

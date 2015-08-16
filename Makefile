@@ -1,5 +1,5 @@
 #
-vmworld: imports
+go-reminders: imports
 	CGO_ENABLED=0 go build -a --installsuffix cgo .
 
 imports:
@@ -9,9 +9,9 @@ clean:
 	go clean
 
 run:
-	./vmworld >vmworld.log 2>&1 &
+	./go-reminders >go-reminders.log 2>&1 &
 
 stop:
-	killall vmworld
+	killall go-reminders
 
-.PHONY: vmworld clean clean run stop
+.PHONY: go-reminders clean clean run stop

@@ -1,7 +1,7 @@
 // Copyright (c) 2013-2015 Antoine Imbert
 // Copyright (c) 2015 VMware
 //
-// License: MIT (see https://github.com/tdhite/vmorld/LICENSE).
+// License: MIT (see https://github.com/tdhite/go-reminders/LICENSE).
 //
 package reminders
 

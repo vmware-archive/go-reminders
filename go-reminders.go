@@ -1,18 +1,18 @@
 // Copyright (c) 2015 VMware
 // Author: Tom Hite (thite@vmware.com)
 //
-// License: MIT (see https://github.com/tdhite/vmorld/LICENSE).
+// License: MIT (see https://github.com/tdhite/go-reminders/LICENSE).
 //
 package main
 
 import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/stretchr/graceful"
-	"github.com/tdhite/vmworld/app"
-	"github.com/tdhite/vmworld/db"
-	"github.com/tdhite/vmworld/reminders"
-	"github.com/tdhite/vmworld/stats"
-	"github.com/tdhite/vmworld/template"
+	"github.com/tdhite/go-reminders/app"
+	"github.com/tdhite/go-reminders/db"
+	"github.com/tdhite/go-reminders/reminders"
+	"github.com/tdhite/go-reminders/stats"
+	"github.com/tdhite/go-reminders/template"
 	"log"
 	"net/http"
 	"os"

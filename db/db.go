@@ -1,7 +1,7 @@
 // Copyright (c) 2015 VMware
 // Author: Tom Hite (thite@vmware.com)
 //
-// License: MIT (see https://github.com/tdhite/vmorld/LICENSE).
+// License: MIT (see https://github.com/tdhite/go-reminders/LICENSE).
 //
 package db
 
