@@ -13,8 +13,8 @@ docker: go-reminders
 clean:
 	go clean
 	rm -f go-reminders
-	docker kill $(docker ps -a | awk '/go-reminder/ { print $1}') || echo -
-	docker rm $(docker ps -a | awk '/go-reminder/ { print $1}') || echo -
+	docker kill $$(docker ps -a | awk '/go-reminder/ { print $$1}') || echo -
+	docker rm $$(docker ps -a | awk '/go-reminder/ { print $$1}') || echo -
 	docker rmi go-reminders
 
 run:

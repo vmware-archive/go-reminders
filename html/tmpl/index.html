@@ -33,40 +33,51 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="container">
   <div class="row">
-  <div class="one column">&nbsp;</div>
-  <div class="ten columns">
-    <h4>All Your Reminders</h4>
-    {{if .}}
-    <table class="u-full-width">
-      <thead>
-        <th>Reminder</th>
-        <th>Edit</th>
-        <th>Delete</th>
-      </thead>
-      <tbody>
-      {{range $reminder := .}}
-      <tr>
-        <td><p>{{$reminder.Message}}</p></td>
-        <td>
-          <form action="/html/tmpl/edit" method="post">
-            <input type="hidden" name="guid" value="{{$reminder.Guid}}">
-            <input class="button-primary" type="submit" value="Edit">
-          </form>
-        </td>
-        <td>
-          <form action="/html/tmpl/delete" method="post">
-            <input type="hidden" name="guid" value="{{$reminder.Guid}}">
-            <input class="button-primary" type="submit" value="Delete">
-          </form>
-        </td>
-      {{end}}
-      </tbody>
-    </table>
-    {{else}}
-    <center><h4>Goodness, you are an elephant &mdash; No reminders!</h4></center>
-    {{end}}
+    <div class="nine columns">
+      <h4>All Your Reminders</h4>
+    </div>
+    <div class="three columns">
+      <form action="/html/tmpl/edit" method="post">
+        <input type="hidden" name="guid" value="">
+        <input class="button" type="submit" value="New Reminder">
+      </form>
+    </div>
   </div>
-  <div class="one column">&nbsp;</div>
+
+  <div class="row">
+    <div class="one column">&nbsp;</div>
+    <div class="ten columns">
+      {{if .}}
+      <table class="u-full-width">
+        <thead>
+          <th>Reminder</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </thead>
+        <tbody>
+        {{range $reminder := .}}
+        <tr>
+          <td><p>{{$reminder.Message}}</p></td>
+          <td>
+            <form action="/html/tmpl/edit" method="post">
+              <input type="hidden" name="guid" value="{{$reminder.Guid}}">
+              <input class="button-primary" type="submit" value="Edit">
+            </form>
+          </td>
+          <td>
+            <form action="/html/tmpl/delete" method="post">
+              <input type="hidden" name="guid" value="{{$reminder.Guid}}">
+              <input class="button-primary" type="submit" value="Delete">
+            </form>
+          </td>
+        {{end}}
+        </tbody>
+      </table>
+      {{else}}
+      <center><h4>Goodness, you are an elephant &mdash; No reminders!</h4></center>
+      {{end}}
+    </div>
+    <div class="one column">&nbsp;</div>
   </div>
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
