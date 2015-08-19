@@ -7,6 +7,7 @@ package app
 
 import (
 	"flag"
+	"github.com/tdhite/go-reminders/stats"
 	"log"
 )
 
@@ -20,6 +21,7 @@ var (
 	DBName      string
 	ContentRoot string
 	APIAddress  string
+	Stats       stats.Stats = stats.New()
 )
 
 // Initialize the flags processor with default values and help messages.

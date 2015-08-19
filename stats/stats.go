@@ -10,10 +10,10 @@ import (
 	"sync"
 )
 
+// store hits per URL
 type Stats struct {
-	hits     int
-	requests []string
-	lock     sync.RWMutex
+	hits map[string]int `json:"hits"`
+	lock sync.RWMutex
 }
 
 func init() {
@@ -22,8 +22,7 @@ func init() {
 
 func New() Stats {
 	return Stats{
-		hits:     0,
-		requests: make([]string, 0),
-		lock:     sync.RWMutex{},
+		hits: make(map[string]int),
+		lock: sync.RWMutex{},
 	}
 }

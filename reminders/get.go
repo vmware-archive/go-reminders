@@ -7,6 +7,7 @@ package reminders
 
 import (
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/tdhite/go-reminders/app"
 )
 
 // Rerieve all Reminders via REST Get request.
@@ -18,6 +19,8 @@ func (s *Storage) GetAll(w rest.ResponseWriter, r *rest.Request) {
 
 // Retrieve one Reminder via REST Get request using id as key.
 func (s *Storage) Get(w rest.ResponseWriter, r *rest.Request) {
+	app.Stats.AddHit(r.RequestURI)
+
 	id := r.PathParam("guid")
 	reminder := Reminder{}
 	if s.DB.First(&reminder, id).Error != nil {
@@ -29,6 +32,8 @@ func (s *Storage) Get(w rest.ResponseWriter, r *rest.Request) {
 
 // Retrieve one Reminder via REST Get request using guid as key.
 func (s *Storage) GetGuid(w rest.ResponseWriter, r *rest.Request) {
+	app.Stats.AddHit(r.RequestURI)
+
 	guid := r.PathParam("guid")
 	reminder := Reminder{}
 	if s.DB.Where(&Reminder{Guid: guid}).First(&reminder).Error != nil {

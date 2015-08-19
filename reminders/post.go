@@ -8,11 +8,14 @@ package reminders
 import (
 	"github.com/ant0ine/go-json-rest/rest"
 	uuid "github.com/satori/go.uuid"
+	"github.com/tdhite/go-reminders/app"
 	"net/http"
 )
 
 // Create a new Reminder (REST Post request). This also injects a guid.
 func (s *Storage) Post(w rest.ResponseWriter, r *rest.Request) {
+	app.Stats.AddHit(r.RequestURI)
+
 	reminder := Reminder{}
 	if err := r.DecodeJsonPayload(&reminder); err != nil {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)

@@ -7,11 +7,14 @@ package reminders
 
 import (
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/tdhite/go-reminders/app"
 	"net/http"
 )
 
 // Handle REST Delete request, which presumes Id as the identifying key.
 func (s *Storage) Delete(w rest.ResponseWriter, r *rest.Request) {
+	app.Stats.AddHit(r.RequestURI)
+
 	id := r.PathParam("id")
 	reminder := Reminder{}
 	if s.DB.First(&reminder, id).Error != nil {

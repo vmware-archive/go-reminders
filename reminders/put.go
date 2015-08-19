@@ -7,11 +7,13 @@ package reminders
 
 import (
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/tdhite/go-reminders/app"
 	"net/http"
 )
 
 // Update (REST Put) a Reminder using id as the key.
 func (s *Storage) Put(w rest.ResponseWriter, r *rest.Request) {
+	app.Stats.AddHit(r.RequestURI)
 
 	id := r.PathParam("id")
 	reminder := Reminder{}

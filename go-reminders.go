@@ -11,7 +11,6 @@ import (
 	"github.com/tdhite/go-reminders/app"
 	"github.com/tdhite/go-reminders/db"
 	"github.com/tdhite/go-reminders/reminders"
-	"github.com/tdhite/go-reminders/stats"
 	"github.com/tdhite/go-reminders/template"
 	"log"
 	"net/http"
@@ -29,21 +28,25 @@ import (
 // worth writing up a whole router model just for that when we can just 'mux'
 // things via separate handlers for each html (site) request.
 func templateHomeHandler(w http.ResponseWriter, r *http.Request) {
+	app.Stats.AddHit(r.RequestURI)
 	t := template.New(app.ContentRoot, app.APIAddress+":"+strconv.Itoa(app.ListenPort))
 	t.IndexHandler(w, r)
 }
 
 func templateEditHandler(w http.ResponseWriter, r *http.Request) {
+	app.Stats.AddHit(r.RequestURI)
 	t := template.New(app.ContentRoot, app.APIAddress+":"+strconv.Itoa(app.ListenPort))
 	t.EditHandler(w, r)
 }
 
 func templateSaveHandler(w http.ResponseWriter, r *http.Request) {
+	app.Stats.AddHit(r.RequestURI)
 	t := template.New(app.ContentRoot, app.APIAddress+":"+strconv.Itoa(app.ListenPort))
 	t.SaveHandler(w, r)
 }
 
 func templateDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	app.Stats.AddHit(r.RequestURI)
 	t := template.New(app.ContentRoot, app.APIAddress+":"+strconv.Itoa(app.ListenPort))
 	t.DeleteHandler(w, r)
 }
@@ -56,7 +59,6 @@ func realMain() int {
 		log.Fatalf("Failed to connect to DB: %v.\n", err)
 	}
 
-	sitestats := stats.New()
 	reminders := reminders.New(db)
 
 	// setup JSON request handlers
@@ -64,7 +66,7 @@ func realMain() int {
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
 		// stats
-		rest.Get("/stats/hits", sitestats.Get),
+		rest.Get("/stats/hits", app.Stats.Get),
 		// reminders
 		rest.Get("/api/reminders", reminders.GetAll),
 		rest.Post("/api/reminders", reminders.Post),
@@ -83,6 +85,7 @@ func realMain() int {
 	// setup the html page request handlers and mux it all
 	mux := http.NewServeMux()
 	mux.Handle("/api/", api.MakeHandler())
+	mux.Handle("/stats/", api.MakeHandler())
 	mux.Handle("/html/skeleton/", http.FileServer(http.Dir(app.ContentRoot)))
 	mux.Handle("/html/tmpl/index", http.HandlerFunc(templateHomeHandler))
 	mux.Handle("/html/tmpl/delete", http.HandlerFunc(templateDeleteHandler))

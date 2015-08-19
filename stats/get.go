@@ -10,12 +10,10 @@ import (
 )
 
 func (s *Stats) Get(w rest.ResponseWriter, r *rest.Request) {
-	m := make(map[string]interface{})
 	s.AddHit(r.RequestURI)
-	s.lock.RLock()
-	m["hits"] = s.hits
-	s.lock.RUnlock()
-	err := w.WriteJson(m)
+	s.lock.Lock()
+	err := w.WriteJson(s.hits)
+	s.lock.Unlock()
 	if err != nil {
 		rest.Error(w, err.Error(), 503)
 	}
