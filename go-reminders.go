@@ -51,6 +51,12 @@ func templateDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	t.DeleteHandler(w, r)
 }
 
+func statsHitsHandler(w http.ResponseWriter, r *http.Request) {
+	app.Stats.AddHit(r.RequestURI)
+	t := template.New(app.ContentRoot, app.APIAddress+":"+strconv.Itoa(app.ListenPort))
+	t.StatsHitsHandler(w, r)
+}
+
 // Called by main, which is just a wrapper for this function. The reason
 // is main can't directly pass back a return code to the OS.
 func realMain() int {
@@ -91,6 +97,7 @@ func realMain() int {
 	mux.Handle("/html/tmpl/delete", http.HandlerFunc(templateDeleteHandler))
 	mux.Handle("/html/tmpl/edit", http.HandlerFunc(templateEditHandler))
 	mux.Handle("/html/tmpl/save", http.HandlerFunc(templateSaveHandler))
+	mux.Handle("/html/stats/hits", http.HandlerFunc(statsHitsHandler))
 
 	// this runs a server that can handle os signals for clean shutdown.
 	server := &graceful.Server{

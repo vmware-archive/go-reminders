@@ -66,8 +66,11 @@ The :id value is the database record id.
 
 ## The HTML Interface
 To reach the HTML interface (given the same sample as above), browse to:
-http://172.17.0.1/html/tmpl/index and the remainder of the HTML paths are
+http://172.17.0.1/html/tmpl/index and the bulk  of the HTML paths are
 available from that page or others as appropriate given traversal of the 'site.'
+
+Another HTML area is the /stats/hits, which provides a view of hit counts on
+the various URLs involved in the service (API and HTML).
 
 # Dependencies
 This service requires a valid Go language environment and gnu make.

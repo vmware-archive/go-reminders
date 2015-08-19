@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/tdhite/go-reminders/reminders"
+	"github.com/tdhite/go-reminders/stats"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -134,4 +135,22 @@ func (t *Template) createReminder(r reminders.Reminder) {
 
 	_, err = ioutil.ReadAll(rsp.Body)
 	perror(err)
+}
+
+// Retrieve a Reminder from storage via REST call.
+func (t *Template) getStatsHits() map[string]int {
+	url := t.generateAPIUrl("/stats/hits")
+	log.Println("url: " + url)
+
+	res, err := http.Get(url)
+	perror(err)
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	perror(err)
+
+	data, err := stats.HitsFromJson(body)
+	perror(err)
+
+	return data
 }

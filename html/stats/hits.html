@@ -50,32 +50,20 @@
       {{if .}}
       <table class="u-full-width">
         <thead>
-          <th>Reminder</th>
-          <th>Edit</th>
-          <th>Delete</th>
+          <th>Request URL</th>
+          <th>Count</th>
         </thead>
         <tbody>
-        {{range $reminder := .}}
+        {{range $k, $v := .}}
           <tr>
-            <td><p>{{$reminder.Message}}</p></td>
-            <td>
-              <form action="/html/tmpl/edit" method="post">
-                <input type="hidden" name="guid" value="{{$reminder.Guid}}">
-                <input class="button-primary" type="submit" value="Edit">
-              </form>
-            </td>
-            <td>
-              <form action="/html/tmpl/delete" method="post">
-                <input type="hidden" name="guid" value="{{$reminder.Guid}}">
-                <input class="button-primary" type="submit" value="Delete">
-              </form>
-            </td>
-          </tr>
+            <td><a href="{{$k}}">{{$k}}</a></td>
+            <td>{{$v}}</td>
+		  </tr>
         {{end}}
         </tbody>
       </table>
       {{else}}
-      <center><h4>Goodness, you are an elephant &mdash; No reminders!</h4></center>
+      <center><h4>The service is not terribly busy &mdash; no hits yet!</h4></center>
       {{end}}
     </div>
     <div class="one column">&nbsp;</div>
