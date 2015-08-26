@@ -12,6 +12,7 @@ import (
 	"github.com/tdhite/go-reminders/db"
 	"github.com/tdhite/go-reminders/reminders"
 	"github.com/tdhite/go-reminders/template"
+	"github.com/tdhite/go-reminders/vro"
 	"log"
 	"net/http"
 	"os"
@@ -60,12 +61,32 @@ func statsHitsHandler(w http.ResponseWriter, r *http.Request) {
 // Called by main, which is just a wrapper for this function. The reason
 // is main can't directly pass back a return code to the OS.
 func realMain() int {
-	db, err := db.New(app.DBHost, app.DBPort, app.DBAdmin, app.DBPasswd, app.DBName)
-	if err != nil {
-		log.Fatalf("Failed to connect to DB: %v.\n", err)
+	var d db.DB
+	if app.VROUrl != "" {
+		d = db.DB{}
+		d.SetName(app.DBName)
+		v := vro.New(app.Admin, app.Passwd, app.Insecure)
+		err := v.GetDBCredsBasicAuth(app.VROUrl, &d)
+
+		if err != nil {
+			log.Fatalf("Failed to connect obtain creds from vRO. %v.\n", err)
+		}
+
+		log.Printf("DB: %v", d)
+
+		err = d.Init()
+		if err != nil {
+			log.Fatalf("Failed to connect to DB: %v.\n", err)
+		}
+	} else {
+		var err error
+		d, err = db.New(app.Host, app.Port, app.Admin, app.Passwd, app.DBName)
+		if err != nil {
+			log.Fatalf("Failed to connect to DB: %v.\n", err)
+		}
 	}
 
-	reminders := reminders.New(db)
+	reminders := reminders.New(d)
 
 	// setup JSON request handlers
 	api := rest.NewApi()
@@ -122,7 +143,7 @@ func realMain() int {
 	// allows for multiple of this program (service) to run against the
 	// same storage backend (mysql at present).
 	if app.DBName == "" {
-		db.Drop()
+		d.Drop()
 	}
 
 	return exitcode

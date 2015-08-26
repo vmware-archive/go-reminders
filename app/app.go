@@ -14,13 +14,15 @@ import (
 // Global application context variables.
 var (
 	ListenPort  int
-	DBPort      int
-	DBHost      string
-	DBAdmin     string
-	DBPasswd    string
+	Port        int
+	Host        string
+	Admin       string
+	Passwd      string
 	DBName      string
 	ContentRoot string
 	APIAddress  string
+	VROUrl      string
+	Insecure    bool
 	Stats       stats.Stats = stats.New()
 )
 
@@ -29,36 +31,42 @@ func initFlags() {
 	const (
 		listenPortDefault  = 8080
 		listenPortUsage    = "port on which to listen for HTTP requests"
-		dbPortDefault      = 3306
-		dbPortUsage        = "port to use for DB connections"
-		dbHostDefault      = "localhost"
-		dbHostUsage        = "database (host) address"
-		dbAdminDefault     = "vmware"
-		dbAdminUsage       = "database admin user (with power to create databases)"
-		dbPasswordDefault  = "vmware"
-		dbPasswordUsage    = "database admin password"
+		portDefault        = 3306
+		portUsage          = "port to use for connections"
+		hostDefault        = "localhost"
+		hostUsage          = "database (host) address"
+		adminDefault       = "vmware"
+		adminUsage         = "username for authentication -- note: db user must have power to create databases)"
+		passwordDefault    = "vmware"
+		passwordUsage      = "password for authentication"
 		dbNameDefault      = ""
 		dbNameUsage        = "database name to connect to (empty for new database)"
 		contentRootDefault = "."
 		contentRootUsage   = "path to (content) templates, skeleton, etc."
-		apiAddressDefault  = "localhost"
-		apiAddressUsage    = "address for reminders api (default localhost)"
+		insecureDefault    = false
+		insecureUsage      = "allow insecure auth (skip tls verify)"
+		vROUrlDefault      = ""
+		vROUrlUsage        = "URL to authenticate against REST API for MySQL Access"
 	)
 
 	flag.IntVar(&ListenPort, "listenport", listenPortDefault, listenPortUsage)
 	flag.IntVar(&ListenPort, "l", listenPortDefault, listenPortUsage+" (shorthand)")
-	flag.IntVar(&DBPort, "dbport", dbPortDefault, dbPortUsage)
-	flag.IntVar(&DBPort, "p", dbPortDefault, dbPortUsage+" (shorthand)")
-	flag.StringVar(&DBHost, "dbhost", dbHostDefault, dbHostUsage)
-	flag.StringVar(&DBHost, "a", dbHostDefault, dbHostUsage+" (shorthand)")
-	flag.StringVar(&DBAdmin, "dbuser", dbAdminDefault, dbAdminUsage)
-	flag.StringVar(&DBAdmin, "u", dbAdminDefault, dbAdminUsage+" (shorthand)")
-	flag.StringVar(&DBPasswd, "dbpasswd", dbPasswordDefault, dbPasswordUsage)
-	flag.StringVar(&DBPasswd, "s", dbPasswordDefault, dbPasswordUsage+" (shorthand)")
+	flag.IntVar(&Port, "port", portDefault, portUsage)
+	flag.IntVar(&Port, "p", portDefault, portUsage+" (shorthand)")
+	flag.StringVar(&Host, "host", hostDefault, hostUsage)
+	flag.StringVar(&Host, "h", hostDefault, hostUsage+" (shorthand)")
+	flag.StringVar(&Admin, "user", adminDefault, adminUsage)
+	flag.StringVar(&Admin, "u", adminDefault, adminUsage+" (shorthand)")
+	flag.StringVar(&Passwd, "passwd", passwordDefault, passwordUsage)
+	flag.StringVar(&Passwd, "s", passwordDefault, passwordUsage+" (shorthand)")
 	flag.StringVar(&DBName, "dbname", dbNameDefault, dbNameUsage)
 	flag.StringVar(&DBName, "n", dbNameDefault, dbNameUsage+" (shorthand)")
 	flag.StringVar(&ContentRoot, "tplpath", contentRootDefault, contentRootUsage)
 	flag.StringVar(&ContentRoot, "t", contentRootDefault, contentRootUsage+" (shorthand)")
+	flag.StringVar(&VROUrl, "vrourl", vROUrlDefault, vROUrlUsage)
+	flag.StringVar(&VROUrl, "v", vROUrlDefault, vROUrlUsage+" (shorthand)")
+	flag.BoolVar(&Insecure, "insecure", insecureDefault, insecureUsage)
+	flag.BoolVar(&Insecure, "i", insecureDefault, insecureUsage+" (shorthand)")
 }
 
 // Process application (command line) flags. Note this happens automatically.

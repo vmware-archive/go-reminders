@@ -86,6 +86,12 @@ func New(host string, port int, user string, passwd string, name string) (DB, er
 		name:   name,
 	}
 
+	err := db.Init()
+
+	return db, err
+}
+
+func (db *DB) Init() error {
 	wantNewDB := false
 	if len(db.name) == 0 {
 		db.name, _ = randomName()
@@ -95,12 +101,12 @@ func New(host string, port int, user string, passwd string, name string) (DB, er
 	if wantNewDB {
 		err := db.Create()
 		if err != nil {
-			log.Println("Error creating database: %v.", err)
-			return db, err
+			log.Printf("Failed to connect obtain creds from vRO. %v.\n", err)
+			return err
 		}
 	}
 
-	return db, nil
+	return nil
 }
 
 // Create the database represented by DB.
