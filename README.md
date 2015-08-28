@@ -77,7 +77,8 @@ This service requires a valid Go language environment and gnu make.
 
 When utilizing the vRO capabilities, the service depends on the vRO workflow
 to provide a valid database host, admin login  and login password where the
-admin user has rights to create a database and tables.
+admin user has rights to create a database and tables. The vRO code may need
+to change based on various workflows, but the gist is in the vro directory.
 
 # License and Author
 Copyright: Copyright (c) 2015 VMware, Inc. All Rights Reserved
