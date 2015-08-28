@@ -75,6 +75,10 @@ the various URLs involved in the service (API and HTML).
 # Dependencies
 This service requires a valid Go language environment and gnu make.
 
+When utilizing the vRO capabilities, the service depends on the vRO workflow
+to provide a valid database host, admin login  and login password where the
+admin user has rights to create a database and tables.
+
 # License and Author
 Copyright: Copyright (c) 2015 VMware, Inc. All Rights Reserved
 
