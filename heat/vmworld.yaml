@@ -1,0 +1,84 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Deploys go-reminders server into an existing neutron tenant network and
+  assigns floating IP address such that the server ends up routable to/from
+  the public net. Note that this stack presumes that it is built in the
+  context of a shell script as it is intended for jenkins builds (or
+  similar). This, thus BUILD_NUMBER below is used to differentiate stack
+  names, at a minimum.
+
+parameters:
+  image:
+    type: string
+    description: Name of image to use for servers
+  flavor:
+    type: string
+    description: Flavor to use for servers
+  public_net_id:
+    type: string
+    description: >
+      ID of public network for which floating IP addresses will be allocated
+  private_net_id:
+    type: string
+    description: ID of private network into which to deploy the server
+  private_subnet_id:
+    type: string
+    description: ID of private sub network into which to deploy the server
+
+resources:
+  reminders:
+    type: OS::Nova::Server
+    properties:
+      name: reminders-${BUILD_NUMBER}
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      networks:
+        - port: { get_resource: reminders_port }
+      user_data_format: RAW
+      user_data: |
+        #!/bin/bash -v
+        ifconfig eth0 mtu 1450
+        apt-get update
+        apt-get install -y docker.io
+        docker pull opencloudtools/go-reminders
+        docker run -d -p 8080:8080 opencloudtools/go-reminders /go-reminders -u 'administrator@vsphere.local' -s 'VMware1!' -i -v https://10.150.105.75:8281/vco/api/workflows/67d3e640-f338-4961-833d-e70893fc3b9e/executions
+
+  reminders_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_param: private_net_id }
+      fixed_ips:
+        - subnet_id: { get_param: private_subnet_id }
+      security_groups: [{ get_resource: server_security_group }]
+
+  reminders_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_id }
+      port_id: { get_resource: reminders_port }
+
+  server_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Add security group rules for server
+      name: security-group
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 8080
+          port_range_max: 8080
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: icmp
+
+outputs:
+  reminders_private_ip:
+    description: IP address of reminders in private network
+    value: { get_attr: [ reminders, first_address ] }
+  reminders_public_ip:
+    description: Floating IP address of reminders in public network
+    value: { get_attr: [ reminders_floating_ip, floating_ip_address ] }

@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/tdhite/go-reminders/db"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,62 +19,79 @@ import (
 	"time"
 )
 
+func (a *BasicAuth) getHttpRequest(method string, url string, body io.Reader) (
+		*http.Client,
+		*http.Request,
+		error){
+
+	client := &http.Client{}
+
+	if a.insecure {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return client, req, err
+	}
+
+	req.SetBasicAuth(a.user, a.passwd)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	return client, req, nil
+}
+
 func (a *BasicAuth) getUrl(url string) ([]byte, error) {
 	if url == "" {
 		return nil, errors.New("DB struct has insufficient auth information.")
-	} else {
-		client := &http.Client{}
-		if a.insecure {
-			client.Transport = &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
-		}
-		req, err := http.NewRequest("GET", url, nil)
-		req.SetBasicAuth(a.user, a.passwd)
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Accept", "application/json")
-		rsp, err := client.Do(req)
-		if err != nil {
-			log.Printf(err.Error())
-			return nil, err
-		}
-		defer rsp.Body.Close()
-
-		body, err := ioutil.ReadAll(rsp.Body)
-		return body, nil
 	}
+
+	client, req, err := a.getHttpRequest("GET", url, nil)
+	if err != nil {
+		log.Printf(err.Error())
+		return nil, err
+	}
+
+	rsp, err := client.Do(req)
+	if err != nil {
+		log.Printf(err.Error())
+		return nil, err
+	}
+	defer rsp.Body.Close()
+
+	body, err := ioutil.ReadAll(rsp.Body)
+	return body, nil
 }
 
 func (a *BasicAuth) postUrl(url string) (string, error) {
 	if url == "" {
 		return "", errors.New("empty post url.")
-	} else {
-		client := &http.Client{}
-		if a.insecure {
-			client.Transport = &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
-		}
-		req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte("{}")))
-		req.SetBasicAuth(a.user, a.passwd)
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Accept", "application/json")
-		rsp, err := client.Do(req)
-		if err != nil {
-			log.Printf(err.Error())
-			return "", err
-		}
-		defer rsp.Body.Close()
-
-		// read and clear the body (empty in reality so superfluous)
-		_, _ = ioutil.ReadAll(rsp.Body)
-
-		// Pull polling location from headers
-		location := rsp.Header.Get("Location")
-		log.Printf("POST LOCATION: %s\n", location)
-
-		return location, nil
 	}
+
+	client, req, err := a.getHttpRequest("POST", url, bytes.NewBuffer([]byte("{}")))
+	if err != nil {
+		log.Printf(err.Error())
+		return "", err
+	}
+
+	rsp, err := client.Do(req)
+	if err != nil {
+		log.Printf(err.Error())
+		return "", err
+	}
+	defer rsp.Body.Close()
+
+	// read and clear the body (empty in reality so superfluous)
+	_, _ = ioutil.ReadAll(rsp.Body)
+
+	// Pull polling location from headers
+	location := rsp.Header.Get("Location")
+	log.Printf("POST LOCATION: %s\n", location)
+
+	return location, nil
 }
 
 func pjsonerror(body []byte, err error) {
