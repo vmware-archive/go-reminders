@@ -13,6 +13,7 @@ docker: go-reminders
 clean:
 	go clean
 	rm -f go-reminders
+	echo "Cleaning up Docker Engine before building."
 	docker kill $$(docker ps -a | awk '/go-reminder/ { print $$1}') || echo -
 	docker rm $$(docker ps -a | awk '/go-reminder/ { print $$1}') || echo -
 	docker rmi go-reminders
