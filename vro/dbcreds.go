@@ -95,7 +95,9 @@ func (a *BasicAuth) postUrl(url string) (string, error) {
 }
 
 func pjsonerror(body []byte, err error) {
+	log.Println("============ START JSON ONLY -- NOT ERROR LOG ===========")
 	log.Printf("JSON value:\n%s\n", body)
+	log.Println("============ END JSON ONLY -- NOT ERROR LOG ===========")
 
 	if err != nil {
 		log.Printf("%T\n%s\n%#v\n", err, err, err)
