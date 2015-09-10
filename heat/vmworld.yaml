@@ -5,8 +5,13 @@ description: >
   assigns floating IP address such that the server ends up routable to/from
   the public net. Note that this stack presumes that it is built in the
   context of a shell script as it is intended for jenkins builds (or
-  similar). This, thus BUILD_NUMBER below is used to differentiate stack
-  names, at a minimum.
+  similar). Thus the following env variables (for runtime expansion):
+  ------
+  BUILD_NUMBER -- the build number, usually provided by Jenkins;
+  VRO_USER -- user name for vRO to authenticate (e.g.,jenkins build param);
+  VRO_PASSWORD -- password for vRO authenticatation (e.g., jenkins build param);
+  VRO_URL  -- URL to the vRO instance from which to obtain DB creds.
+  ------
 
 parameters:
   image:
@@ -39,10 +44,13 @@ resources:
       user_data: |
         #!/bin/bash -v
         ifconfig eth0 mtu 1450
-        apt-get update
-        apt-get install -y docker.io
+        ifconfig docker0 mtu 1450
+        service docker restart
+        #apt-get update
+        #apt-get install -y docker.io
+        sleep 2
         docker pull opencloudtools/go-reminders
-        docker run -d -p 8080:8080 opencloudtools/go-reminders /go-reminders -u 'administrator@vsphere.local' -s 'VMware1!' -i -v https://10.150.105.75:8281/vco/api/workflows/67d3e640-f338-4961-833d-e70893fc3b9e/executions
+        docker run -d -p 8080:8080 opencloudtools/go-reminders /go-reminders -u '${VRO_USER}' -s '${VRO_PASSWORD}' -i -v '${VRO_URL}'
 
   reminders_port:
     type: OS::Neutron::Port
