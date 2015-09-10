@@ -2,15 +2,16 @@
 Sample microservice to manage reminders (tasks one seeks to remember).
 
 # Getting Started
+See the Dependencies section in this document for initial setup.
+
 Until such time as we release this repository to the public, clone it in
 your GOPATH at src/github.com/tdhite/go-reminders, then build it:
 
 For example:
 
     export GOPATH=${HOME}/go
-    cd ${HOME}/go
-    mkdir -p src/github.com/tdhite
-    cd src/github.com/tdhite
+    mkdir -p ${HOME}/go/src/github.com/tdhite
+    cd ${HOME}/go/src/github.com/tdhite
     git clone http://gerrit.cloudbuilders.vmware.local/go-reminders
     cd go-reminders
     make
@@ -74,6 +75,11 @@ the various URLs involved in the service (API and HTML).
 
 # Dependencies
 This service requires a valid Go language environment and gnu make.
+
+To install go, see https://golang.org/doc/install
+
+A working MySQL server must also be available. The microservice requires
+rights to create and drop databases, as well as normal CRUD on tables.
 
 When utilizing the vRO capabilities, the service depends on the vRO workflow
 to provide a valid database host, admin login  and login password where the
