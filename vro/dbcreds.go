@@ -248,7 +248,7 @@ func (a *BasicAuth) getvROCredentials(credsUrl string) (vROCreds, error) {
 			close(chanCreds)
 			finished = true
 		case <-calltimer:
-			log.Printf("Polling for creds, again, for db credentials.")
+			log.Printf("Polling for creds again for db credentials.")
 		case <-timeout:
 			err = errors.New("Timed out getting vRO Credentials")
 			log.Println(err.Error())
