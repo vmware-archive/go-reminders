@@ -264,6 +264,16 @@ func (a *BasicAuth) getvROCredentials(credsUrl string) (vROCreds, error) {
 }
 
 func (a *BasicAuth) GetDBCredsBasicAuth(exeurl string, db *db.DB) error {
+	demoOverride := true
+
+	if demoOverride {
+		db.SetAddress("10.150.111.214")
+		db.SetPort(3306)
+		db.SetAdmin("vmware")
+		db.SetPasswd("vmware")
+		return nil
+	}
+
 	credsUrl, err := a.getvROCredsUrl(exeurl)
 	if err != nil {
 		return err
