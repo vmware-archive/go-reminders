@@ -69,7 +69,7 @@ func realMain() int {
 		err := v.GetDBCredsBasicAuth(app.VROUrl, &d)
 
 		if err != nil {
-			log.Fatalf("Failed to connect obtain creds from vRO. %v.\n", err)
+			log.Fatalf("Failed to connect and obtain creds from vRO. %v.\n", err)
 		}
 
 		log.Printf("DB: %v", d)
