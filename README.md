@@ -4,6 +4,7 @@ Sample microservice to manage reminders (tasks one seeks to remember).
 # Getting Started
 See the Dependencies section in this document for initial setup.
 
+## Building the code
 Until such time as we release this repository to the public, clone it in
 your GOPATH at src/github.com/tdhite/go-reminders, then build it:
 
@@ -15,6 +16,14 @@ For example:
     git clone http://gerrit.cloudbuilders.vmware.local/go-reminders
     cd go-reminders
     make
+
+### Using Jenkins
+A set of config.xml files for jobs and the Gerrit trigger plugin exist
+in the jenkins directory. The config files can be used as templates to
+setup a flow that, from a merge, for example, of the sources triggers
+a full build, push of the go-reminders container to Docker hub, generate
+a HEAT template to run it on an OpenStack instance, and thereafter kick
+off the HEAT stack.
 
 ## The API
 Upon running the service, e.g.:

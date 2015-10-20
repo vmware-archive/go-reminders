@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Builds the Reminders microservice sample service</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>2</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_USER</name>
+          <description>User for Docker Hub.</description>
+          <defaultValue>put_your_docker_id_here</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_PASSWD</name>
+          <description>Docker hub password.</description>
+          <defaultValue>put_your_password_here</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_EMAIL</name>
+          <description>Docker user e-mail.</description>
+          <defaultValue>put_your_docker_email_here</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.copyartifact.CopyArtifactPermissionProperty plugin="copyartifact@1.35.2">
+      <projectNameList>
+        <string>*</string>
+      </projectNameList>
+    </hudson.plugins.copyartifact.CopyArtifactPermissionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+# globals
+# The git URL to the code base to pull for builds
+codeurl=http://10.150.111.206:8080/go-reminders
+
+# force the GOPATH to point at the workspace area
+export GOPATH=${WORKSPACE}
+
+errorout() {
+    if [ $1 -ne 0 ]; then
+	    exit $1
+    fi
+}
+
+# Get the code
+if [ -d src/github.com/tdhite/go-reminders ]; then
+    cd src/github.com/tdhite/go-reminders
+    git pull
+    errorout $?
+else
+    mkdir -p src/github.com/tdhite
+    cd src/github.com/tdhite
+    git clone ${codeurl}
+    errorout $?
+    cd go-reminders
+fi
+
+# Get imports and build
+go get ./...
+errorout $?
+CGO_ENABLED=0 go build -a --installsuffix cgo . 2&gt;&amp;1
+errorout $?
+
+# build docker container
+containers=$(docker ps -a | awk &apos;/go-reminder/ {print $1}&apos;)
+if [ -n &quot;${containers}&quot; ]; then
+    docker kill ${containers} || echo 0
+    docker rm ${containers} || echo 0
+fi
+docker rmi go-reminders
+docker build -t opencloudtools/go-reminders .
+errorout $?
+docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWD} -e ${DOCKER_EMAIL}
+errorout $?
+docker push opencloudtools/go-reminders
+errorout $?
+# Build archive artifact
+tar cvzf ${WORKSPACE}/go-reminders.tgz go-reminders html
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
