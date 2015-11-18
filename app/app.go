@@ -21,7 +21,8 @@ var (
 	DBName      string
 	ContentRoot string
 	APIAddress  string
-	VROUrl      string
+	CfgType     string
+	CfgSrc      string
 	Insecure    bool
 	Stats       stats.Stats = stats.New()
 )
@@ -37,7 +38,7 @@ func initFlags() {
 		hostUsage          = "database (host) address"
 		adminDefault       = "vmware"
 		adminUsage         = "username for authentication -- note: db user must have power to create databases)"
-		passwordDefault    = "vmware"
+		passwordDefault    = "VMware1!"
 		passwordUsage      = "password for authentication"
 		dbNameDefault      = ""
 		dbNameUsage        = "database name to connect to (empty for new database)"
@@ -45,8 +46,10 @@ func initFlags() {
 		contentRootUsage   = "path to (content) templates, skeleton, etc."
 		insecureDefault    = false
 		insecureUsage      = "allow insecure auth (skip tls verify)"
-		vROUrlDefault      = ""
-		vROUrlUsage        = "URL to authenticate against REST API for MySQL Access"
+		cfgTypeDefault     = "etcd"
+		cfgTypeUsage       = "select configuration source type (current support for vro/etcd)"
+		cfgSrcDefault      = ""
+		cfgSrcUsage        = "host (or ip address) of configuration source"
 	)
 
 	flag.IntVar(&ListenPort, "listenport", listenPortDefault, listenPortUsage)
@@ -63,10 +66,12 @@ func initFlags() {
 	flag.StringVar(&DBName, "n", dbNameDefault, dbNameUsage+" (shorthand)")
 	flag.StringVar(&ContentRoot, "tplpath", contentRootDefault, contentRootUsage)
 	flag.StringVar(&ContentRoot, "t", contentRootDefault, contentRootUsage+" (shorthand)")
-	flag.StringVar(&VROUrl, "vrourl", vROUrlDefault, vROUrlUsage)
-	flag.StringVar(&VROUrl, "v", vROUrlDefault, vROUrlUsage+" (shorthand)")
 	flag.BoolVar(&Insecure, "insecure", insecureDefault, insecureUsage)
 	flag.BoolVar(&Insecure, "i", insecureDefault, insecureUsage+" (shorthand)")
+	flag.StringVar(&CfgType, "cfgtype", cfgTypeDefault, cfgTypeUsage)
+	flag.StringVar(&CfgType, "c", cfgTypeDefault, cfgTypeUsage+" (shorthand)")
+	flag.StringVar(&CfgSrc, "cfgsrc", cfgSrcDefault, cfgSrcUsage)
+	flag.StringVar(&CfgSrc, "e", cfgSrcDefault, cfgSrcUsage+" (shorthand)")
 }
 
 // Process application (command line) flags. Note this happens automatically.

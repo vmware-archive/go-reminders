@@ -17,6 +17,10 @@ For example:
     cd go-reminders
     make
 
+Building in a container:
+
+  docker run --rm -v "$GOPATH":/go -w "/go/src/github.com/tdhite/go-reminders" golang:1.5.1 make go-reminders
+
 ### Using Jenkins
 A set of config.xml files for jobs and the Gerrit trigger plugin exist
 in the jenkins directory. The config files can be used as templates to
@@ -28,10 +32,18 @@ off the HEAT stack.
 ## The API
 Upon running the service, e.g.:
 
-    docker run -d -p 8080:8080 go-reminders /go-reminders -a 172.16.78.227
+- etcd:
+```
+    docker run -d -p 8080:8080 go-reminders /go-reminders -cfgsrc etcd_host:2379
+```
+
+- vRO:
+```
+    docker run -d -p 8080:8080 go-reminders /go-reminders -cfgtype vro -cfgsrc 172.16.78.227
+```
 
 and assuming that provided you a Docker generated container address as
-172.17.0.1, the REST API exists at http://172.17.0.1:8080/api/reminders and paths further thereuafter pursuant to the pattern:
+172.17.0.1, the REST API exists at http://172.17.0.1:8080/api/reminders and paths further thereafter pursuant to the pattern:
 
 - GET /api/reminders:
 Returns all reminders currently in the database.
@@ -94,6 +106,17 @@ When utilizing the vRO capabilities, the service depends on the vRO workflow
 to provide a valid database host, admin login  and login password where the
 admin user has rights to create a database and tables. The vRO code may need
 to change based on various workflows, but the gist is in the vro directory.
+
+When using etcd support, the expectation is that the etcd service is
+deployed, and key/value pairs exist for:
+
+* /host
+* /port
+* /user
+* /passwd
+
+All of these entries are required for go-reminders to successfully make
+a connection to the MySQL server to support stateful operations.
 
 # License and Author
 Copyright: Copyright (c) 2015 VMware, Inc. All Rights Reserved

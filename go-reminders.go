@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/graceful"
 	"github.com/tdhite/go-reminders/app"
 	"github.com/tdhite/go-reminders/db"
+	"github.com/tdhite/go-reminders/etcd"
 	"github.com/tdhite/go-reminders/reminders"
 	"github.com/tdhite/go-reminders/template"
 	"github.com/tdhite/go-reminders/vro"
@@ -58,26 +59,40 @@ func statsHitsHandler(w http.ResponseWriter, r *http.Request) {
 	t.StatsHitsHandler(w, r)
 }
 
+// [NOTE]: credentials should be pre-populated at config source.
+func fetchCredentials(ctype string, d *db.DB) {
+	switch ctype {
+	case "etcd":
+		k := etcd.New(app.CfgSrc)
+		k.GetDBCreds(d)
+		log.Printf("DB: %v", *d)
+	case "vro":
+		v := vro.New(app.Admin, app.Passwd, app.Insecure)
+		err := v.GetDBCredsBasicAuth(app.CfgSrc, d)
+		if err != nil {
+			log.Fatalf("Failed to connect and obtain creds from vRO. %v.\n", err)
+		}
+		log.Printf("DB: %v", *d)
+	default:
+		log.Fatalf("Unsupported configuration source of type %s.\n", app.CfgSrc)
+	}
+}
+
 // Called by main, which is just a wrapper for this function. The reason
 // is main can't directly pass back a return code to the OS.
 func realMain() int {
 	var d db.DB
-	if app.VROUrl != "" {
-		d = db.DB{}
-		d.SetName(app.DBName)
-		v := vro.New(app.Admin, app.Passwd, app.Insecure)
-		err := v.GetDBCredsBasicAuth(app.VROUrl, &d)
+	d = db.DB{}
+	d.SetName(app.DBName)
 
-		if err != nil {
-			log.Fatalf("Failed to connect and obtain creds from vRO. %v.\n", err)
-		}
-
-		log.Printf("DB: %v", d)
-
-		err = d.Init()
+	// Use external configuration source.
+	if app.CfgSrc != "" {
+		fetchCredentials(app.CfgType, &d)
+		err := d.Init()
 		if err != nil {
 			log.Fatalf("Failed to connect to DB: %v.\n", err)
 		}
+		// No external configuration source, so depend on arguments.
 	} else {
 		var err error
 		d, err = db.New(app.Host, app.Port, app.Admin, app.Passwd, app.DBName)

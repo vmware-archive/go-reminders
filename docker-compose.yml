@@ -1,0 +1,27 @@
+db:
+  image: mariadb:5.5.46
+  ports:
+   - "3306:3306"
+  environment:
+    - "MYSQL_ROOT_PASSWORD=VMware1!"
+etcdsrv:
+  image: microbox/etcd:2.1.1
+  ports:
+   - "4001:4001"
+  command:
+    - "-listen-client-urls"
+    - "http://0.0.0.0:2379,http://0.0.0.0:4001"
+    - "-advertise-client-urls"
+    - "http://192.168.99.100:2379,http://192.168.99.100:4001"
+#reminders:
+  #image: opencloudtools/go-reminders
+  #ports:
+  #- "8080:8080"
+  #links:
+    #- db
+    #- etcdsrv
+  #command:
+    #- "-cfgurl"
+    #- "etcdsrv:4001"
+    #- "-host"
+    #- "db"

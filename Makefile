@@ -10,6 +10,9 @@ imports:
 docker: go-reminders
 	docker build -t opencloudtools/go-reminders --rm=true .
 
+test:
+	go test ./...
+
 clean:
 	go clean
 	rm -f go-reminders

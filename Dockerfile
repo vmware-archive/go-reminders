@@ -9,3 +9,7 @@ ADD go-reminders /go-reminders
 
 # Add the content (html and templates)
 ADD html /html
+
+EXPOSE 8080
+
+ENTRYPOINT ["/go-reminders"]
