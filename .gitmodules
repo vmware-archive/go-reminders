@@ -1,0 +1,3 @@
+[submodule "web/static/Skeleton"]
+	path = web/static/Skeleton
+	url = https://github.com/dhg/Skeleton

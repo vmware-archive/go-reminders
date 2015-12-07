@@ -13,7 +13,7 @@ For example:
     export GOPATH=${HOME}/go
     mkdir -p ${HOME}/go/src/github.com/tdhite
     cd ${HOME}/go/src/github.com/tdhite
-    git clone http://gerrit.cloudbuilders.vmware.local/go-reminders
+    git clone http://gerrit.eng.vmware.com/go-reminders
     cd go-reminders
     make
 

@@ -1,0 +1,25 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: go-reminders
+  labels:
+    app: go-reminders
+spec:
+  selector:
+    matchLabels:
+      app: go-reminders
+  template:
+    metadata:
+      labels:
+        app: go-reminders
+    spec:
+      containers:
+        - name: go-winery
+          image: tdhite/go-reminders:latest
+          command:
+            - "/go-reminders"
+            - "-dbtype=mem"
+          ports:
+            - containerPort: 8080
+              name: go-reminders
+              protocol: TCP
