@@ -1,4 +1,4 @@
-// Copyright 2015 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
 // SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
@@ -11,21 +11,26 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 
-	"github.com/vmwaresamples/go-reminders/pkg/reminders"
-	"github.com/vmwaresamples/go-reminders/pkg/stats"
+	"github.com/vmware/go-reminders/pkg/reminders"
+	"github.com/vmware/go-reminders/pkg/stats"
 )
+
+const apiRoot = "/api/reminders"
 
 type Template struct {
 	ContentRoot string
 	APIHost     string
+	stats       stats.Stats
 }
 
 // Return a new Template object initialized -- convenience function.
-func New(contentRoot string, apiHost string) Template {
+func New(contentRoot string, apiHost string, stats stats.Stats) Template {
 	return Template{
 		ContentRoot: contentRoot,
 		APIHost:     apiHost,
+		stats:       stats,
 	}
 }
 
@@ -34,12 +39,12 @@ func init() {
 }
 
 func (t *Template) generateAPIUrl(path string) string {
-	return "http://" + t.APIHost + path
+	return "http://" + filepath.Join(t.APIHost, path)
 }
 
 // Retrieve a Reminder from storage via REST call.
 func (t *Template) getReminder(guid string) reminders.Reminder {
-	url := t.generateAPIUrl("/api/reminders/" + guid)
+	url := t.generateAPIUrl(apiRoot + guid)
 	log.Println("url: " + url)
 
 	res, err := http.Get(url)
@@ -57,7 +62,7 @@ func (t *Template) getReminder(guid string) reminders.Reminder {
 
 // Retrieve all Reminders from storage via REST call.
 func (t *Template) getAllReminders() []reminders.Reminder {
-	url := t.generateAPIUrl("/api/reminders")
+	url := t.generateAPIUrl(apiRoot)
 	log.Println("url: " + url)
 
 	res, err := http.Get(url)
@@ -75,7 +80,7 @@ func (t *Template) getAllReminders() []reminders.Reminder {
 
 // Delete the Reminder, to which guid refers, from storage via REST call.
 func (t *Template) deleteReminder(guid string) {
-	url := t.generateAPIUrl("/api/reminders/" + guid)
+	url := t.generateAPIUrl(apiRoot)
 	log.Println("url: " + url)
 
 	req, err := http.NewRequest("DELETE", url, nil)
@@ -97,7 +102,7 @@ func (t *Template) saveReminder(r reminders.Reminder) {
 	jsonData, err := json.Marshal(r)
 	perror(err)
 
-	url := t.generateAPIUrl("/api/reminders/" + r.Guid)
+	url := t.generateAPIUrl(apiRoot + r.Guid)
 	log.Println("url: " + url)
 
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
@@ -120,7 +125,7 @@ func (t *Template) createReminder(r reminders.Reminder) {
 	jsonData, err := json.Marshal(r)
 	perror(err)
 
-	url := t.generateAPIUrl("/api/reminders")
+	url := t.generateAPIUrl(apiRoot)
 	log.Println("url: " + url)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -138,7 +143,7 @@ func (t *Template) createReminder(r reminders.Reminder) {
 	perror(err)
 }
 
-// Retrieve a Reminder from storage via REST call.
+// Retrieve stats via REST call.
 func (t *Template) getStatsHits() map[string]int {
 	url := t.generateAPIUrl("/stats/hits")
 	log.Println("url: " + url)

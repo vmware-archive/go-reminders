@@ -1,0 +1,26 @@
+# go-winery container.yml
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
+#
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1.11.5
+
+inputs:
+  - name: git-reminders-repo
+  - name: build
+  - name: version
+
+outputs:
+  - name: container
+
+run:
+  path: git-reminders-repo/build/ci/concourse/scripts/container.sh

@@ -1,19 +1,28 @@
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
 #
-all: docker
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
 
-go-reminders: imports
-	cd cmd/go-reminders; CGO_ENABLED=0 go build -a --installsuffix cgo go-reminders.go
-.PHONY: go-reminders
+# Check that the container name that gets build is defined.
+ifndef CONTAINER
+$(error CONTAINER, which specifies the docker container name to build, is not set)
+endif
 
-imports:
-	@#cd cmd/go-reminders; go get ./...
-.PHONY: imports
+default: cmd/go-reminders/go-reminders
 
-.PHONY: imports
+all: container
 
-docker: go-reminders
-	cd build/docker/continer; docker build -t opencloudtools/go-reminders --rm=true .
-.PHONY: docker
+container: cmd/go-reminders/go-reminders
+	cd build/docker; ./build.sh
+.PHONY: container
+
+cmd/go-reminders/go-reminders: go.mod $(GOFILES)
+	cd cmd/go-reminders; GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a --installsuffix cgo go-reminders.go
+
+go.mod:
+	go mod init github.com/vmware/go-reminders
+	for m in $$(cat forcemodules); do go get "$$m"; done
 
 test:
 	go test ./...
@@ -22,10 +31,7 @@ test:
 clean:
 	go clean
 	rm -f go-reminders
-	echo "Cleaning up Docker Engine before building."
-	docker kill $$(docker ps -a | awk '/go-reminder/ { print $$1}') || echo -
-	docker rm $$(docker ps -a | awk '/go-reminder/ { print $$1}') || echo -
-	docker rmi go-reminders
+	go clean -modcache
 .PHONY: clean
 
 run:

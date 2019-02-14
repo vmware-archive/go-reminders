@@ -1,4 +1,4 @@
-// Copyright 2015 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
 // SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
@@ -31,10 +31,10 @@ type vROCreds struct {
 	passwd string `json: "Passwd"`
 }
 
-func NewVro(user string, passwd string, insecure bool) BasicAuth {
+func NewVro(c DBCreds, insecure bool) BasicAuth {
 	return BasicAuth{
-		user:     user,
-		passwd:   passwd,
+		user:     c.admin,
+		passwd:   c.passwd,
 		insecure: insecure,
 	}
 }
@@ -241,7 +241,7 @@ func (a *BasicAuth) getvROCredentials(credsUrl string) (vROCreds, error) {
 		timeout <- true
 	}()
 
-	var creds vROCreds
+	var vcreds vROCreds
 	var err error
 	for {
 		// call timer to wait across polls
@@ -263,12 +263,12 @@ func (a *BasicAuth) getvROCredentials(credsUrl string) (vROCreds, error) {
 
 		finished := false
 		select {
-		case creds = <-chanCreds:
+		case vcreds = <-chanCreds:
 			log.Println("Finished polling for vRO Credentials")
 			close(chanCreds)
 			finished = true
 		case <-calltimer:
-			log.Printf("Polling for creds again for db credentials.")
+			log.Printf("Polling for vROCreds again for db credentials.")
 		case <-timeout:
 			err = errors.New("Timed out getting vRO Credentials")
 			log.Println(err.Error())
@@ -280,10 +280,10 @@ func (a *BasicAuth) getvROCredentials(credsUrl string) (vROCreds, error) {
 		}
 	}
 
-	return creds, err
+	return vcreds, err
 }
 
-func (a *BasicAuth) GetDBCredsBasicAuth(exeurl string, db *DBCreds) error {
+func (a *BasicAuth) GetDBCredsBasicAuth(db *DBCreds) error {
 	demoOverride := true
 
 	if demoOverride {
@@ -294,26 +294,26 @@ func (a *BasicAuth) GetDBCredsBasicAuth(exeurl string, db *DBCreds) error {
 		return nil
 	}
 
-	credsUrl, err := a.getvROCredsUrl(exeurl)
+	credsUrl, err := a.getvROCredsUrl(db.Extra())
 	if err != nil {
 		return err
 	}
 
-	creds, err := a.getvROCredentials(credsUrl)
+	vcreds, err := a.getvROCredentials(credsUrl)
 	if err != nil {
 		return err
 	}
 
-	port, err := strconv.Atoi(creds.port)
+	port, err := strconv.Atoi(vcreds.port)
 	if err != nil {
 		log.Printf("Bad port value in vRO Credentials.")
 		return err
 	}
 
-	db.SetAddress(creds.host)
+	db.SetAddress(vcreds.host)
 	db.SetPort(port)
-	db.SetAdmin(creds.admin)
-	db.SetPasswd(creds.passwd)
+	db.SetAdmin(vcreds.admin)
+	db.SetPasswd(vcreds.passwd)
 
 	return err
 }

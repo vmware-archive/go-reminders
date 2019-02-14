@@ -1,0 +1,20 @@
+# go-reminders params.yml
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
+#
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
+
+docker-registry-repo: "mydockerrepo/go-reminders"
+docker-registry-email: "myemail@someserver.com"
+docker-registry-user: "mydockerhubuser"
+docker-registry-passwd: "mydockerhubpassword"
+semver-git-repo: "git@github.com:mygithubid/semvers"
+semver-file: "go-reminders"
+go-reminders-git-repo: "git@github.com/mygithubid/go-reminders"
+
+private-git-repo-key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  all your private kee data here
+  -----END RSA PRIVATE KEY-----

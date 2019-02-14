@@ -1,4 +1,4 @@
-// Copyright 2015 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Copyright (c) 2013-2015 Antoine Imbert
 // Author: Tom Hite (thite@vmware.com)
 //
@@ -12,8 +12,6 @@ import (
 	"strconv"
 
 	"github.com/ant0ine/go-json-rest/rest"
-	uuid "github.com/satori/go.uuid"
-	"github.com/vmwaresamples/go-reminders/pkg/globals"
 )
 
 func idFromString(s string) (int64, error) {
@@ -34,7 +32,7 @@ func (rem *Reminders) GetAll(w rest.ResponseWriter, r *rest.Request) {
 
 // Retrieve one Reminder via REST Get request using id as key.
 func (rem *Reminders) GetId(w rest.ResponseWriter, r *rest.Request) {
-	globals.Stats.AddHit(r.RequestURI)
+	rem.stats.AddHit(r.RequestURI)
 
 	id, err := idFromString(r.PathParam("id"))
 	if err != nil {
@@ -53,7 +51,7 @@ func (rem *Reminders) GetId(w rest.ResponseWriter, r *rest.Request) {
 
 // Retrieve one Reminder via REST Get request using guid as key.
 func (rem *Reminders) GetGuid(w rest.ResponseWriter, r *rest.Request) {
-	globals.Stats.AddHit(r.RequestURI)
+	rem.stats.AddHit(r.RequestURI)
 
 	guid := r.PathParam("guid")
 	reminder, err := rem.s.GetGuid(guid)
@@ -66,7 +64,7 @@ func (rem *Reminders) GetGuid(w rest.ResponseWriter, r *rest.Request) {
 
 // Create a new Reminder (REST Post request). This also injects a guid.
 func (rem *Reminders) Post(w rest.ResponseWriter, r *rest.Request) {
-	globals.Stats.AddHit(r.RequestURI)
+	rem.stats.AddHit(r.RequestURI)
 
 	reminder := Reminder{}
 	if err := r.DecodeJsonPayload(&reminder); err != nil {
@@ -74,7 +72,7 @@ func (rem *Reminders) Post(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 	if len(reminder.Guid) == 0 {
-		u, err := uuid.NewV4()
+		u, err := newGuid()
 		if err != nil {
 			log.Printf("Error creating new UUID: %v\n", err)
 			rest.Error(w, err.Error(), http.StatusInternalServerError)
@@ -112,7 +110,7 @@ func (rem *Reminders) update(reminder Reminder, w rest.ResponseWriter, r *rest.R
 
 // Update (REST Put) a Reminder using id as the key.
 func (rem *Reminders) Put(w rest.ResponseWriter, r *rest.Request) {
-	globals.Stats.AddHit(r.RequestURI)
+	rem.stats.AddHit(r.RequestURI)
 
 	id, err := idFromString(r.PathParam("id"))
 	if err != nil {
@@ -154,7 +152,7 @@ func (rem *Reminders) PutGuid(w rest.ResponseWriter, r *rest.Request) {
 
 // Handle REST Delete request, which presumes Id as the identifying key.
 func (rem *Reminders) Delete(w rest.ResponseWriter, r *rest.Request) {
-	globals.Stats.AddHit(r.RequestURI)
+	rem.stats.AddHit(r.RequestURI)
 
 	id, err := idFromString(r.PathParam("id"))
 	if err != nil {

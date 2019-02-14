@@ -1,7 +1,8 @@
 MIT License
 
-Copyright (c) 2015 VMware, Inc.
-The "reminders" package also Copyright (c) 2013-2015 Antoine Imbert
+Copyright (c) 2015-2019 VMware, Inc.
+Portions of pkg/reminders also Copyright (c) 2013-2015 Antoine Imbert
+Portions of web/templates also Copyright (c) 2011-2014 Dave Gamache
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

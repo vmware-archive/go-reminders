@@ -1,4 +1,4 @@
-// Copyright (c) 2015 VMware
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tim Green (greent@vmware.com)
 //
 // SPDX-License-Identifier: https://spdx.org/licenses/MIT.html

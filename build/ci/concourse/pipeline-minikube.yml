@@ -1,0 +1,90 @@
+# go-reminders pipeline
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
+#
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
+
+resource_types:
+  - name: kubernetes
+    type: docker-image
+    source:
+      repository: ((docker-registry-repo))
+      username: ((docker-registry-user))
+      password: ((docker-registry-passwd))
+      email: ((docker-registry-email))
+
+resources:
+  - name: version
+    type: semver
+    source:
+      driver: git
+      uri: ((semver-git-repo))
+      branch: master
+      file: ((semver-file))
+      private_key: ((private-git-repo-key))
+
+  - name: git-reminders-repo
+    type: git
+    source:
+      uri: ((go-reminders-git-repo))
+      branch: master
+      private_key: ((private-git-repo-key))
+
+  - name: docker-go-reminders-image
+    type: docker-image
+    source:
+     repository: ((docker-registry-repo))
+     username: ((docker-registry-user))
+     password: ((docker-registry-passwd))
+
+jobs:
+  - name: submodules
+    plan:
+      - get: git-reminders-repo
+        trigger: true
+      - task: submodules
+        file: git-reminders-repo/build/ci/concourse/tasks/submodules.yml
+
+  - name: static-tests
+    plan:
+      - get: git-reminders-repo
+        passed: [submodules]
+        trigger: true
+      - task: static-tests
+        file: git-reminders-repo/build/ci/concourse/tasks/static.yml
+
+  - name: increment-version
+    serial_groups:
+      - version
+    plan:
+      - get: git-reminders-repo
+        passed: [static-tests]
+        trigger: true
+      - get: version
+        params:
+          bump: patch
+      - put: version
+        params:
+          bump: patch
+
+  - name: build-container
+    serial_groups:
+      - version
+    plan:
+      - get: git-reminders-repo
+        passed: [static-tests]
+        trigger: true
+      - task: task-build
+        file: git-reminders-repo/build/ci/concourse/tasks/build.yml
+      - get: version
+        passed: [increment-version]
+      - task: container
+        file: git-reminders-repo/build/ci/concourse/tasks/container.yml
+      - put: docker-go-reminders-image
+        params:
+          build: container
+          tag: version/number
+          tag_as_latest: true
+          skip_download: true

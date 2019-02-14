@@ -60,13 +60,13 @@ errorout() {
 }
 
 # Get the code
-if [ -d src/github.com/tdhite/go-reminders ]; then
-    cd src/github.com/tdhite/go-reminders
+if [ -d src/github.com/<mygithubid>/go-reminders ]; then
+    cd src/github.com/<mygithubid>/go-reminders
     git pull
     errorout $?
 else
-    mkdir -p src/github.com/tdhite
-    cd src/github.com/tdhite
+    mkdir -p src/github.com/<mygithubid>
+    cd src/github.com/<mygithubid>
     git clone ${codeurl}
     errorout $?
     cd go-reminders

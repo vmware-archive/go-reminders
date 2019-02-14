@@ -1,4 +1,4 @@
-// Copyright 2015 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
 // SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
@@ -10,13 +10,11 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-
-	"github.com/vmwaresamples/go-reminders/pkg/globals"
 )
 
 // Deletes a Reminder from storage given a guid.
 func (t *Template) DeleteHandler(w http.ResponseWriter, r *http.Request) {
-	globals.Stats.AddHit(r.RequestURI)
+	t.stats.AddHit(r.RequestURI)
 
 	guid := r.FormValue("guid")
 	if guid == "" {

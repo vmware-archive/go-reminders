@@ -1,4 +1,4 @@
-// Copyright 2015 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
 // SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/vmwaresamples/go-reminders/pkg/reminders"
+	"github.com/vmware/go-reminders/pkg/reminders"
 )
 
 // Saves a Reminder object given a POST request with the buid and message set

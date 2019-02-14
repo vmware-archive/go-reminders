@@ -1,4 +1,4 @@
-// Copyright 2019 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
 // SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
@@ -90,7 +90,7 @@ func (db *MemDB) GetId(id int64) (Reminder, error) {
 }
 
 func (db *MemDB) GetGuid(guid string) (Reminder, error) {
-	if r, ok := db.byGuid[guid]; !ok {
+	if r, ok := db.byGuid[guid]; ok {
 		return *r, nil
 	}
 

@@ -1,4 +1,4 @@
-// Copyright 2015 VMware, Inc. All Rights Reserved.
+// Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Copyright (c) 2013-2015 Antoine Imbert
 // Author: Tom Hite (thite@vmware.com)
 //
@@ -10,6 +10,9 @@ import (
 	"encoding/json"
 	"log"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
+	"github.com/vmware/go-reminders/pkg/stats"
 )
 
 // Reminder is serializable as json (tagged) and also SQL tags provide for
@@ -24,19 +27,32 @@ type Reminder struct {
 }
 
 type Reminders struct {
-	s Storage
+	s     Storage
+	stats stats.Stats
 }
 
-func NewReminders() (Reminders, error) {
-	r := Reminders{}
+func NewReminders(creds DBCreds, stats stats.Stats, insecure bool) (Reminders, error) {
+	r := Reminders{
+		stats: stats,
+	}
 
-	s, err := newStorage()
+	s, err := newStorage(creds, insecure)
 	if err != nil {
 		return r, err
 	}
 
 	r.s = s
 	return r, nil
+}
+
+func newTestReminders(creds DBCreds, insecure bool) (Reminders, error) {
+	stats := stats.New()
+	return NewReminders(creds, stats, insecure)
+
+}
+
+func newGuid() (uuid.UUID, error) {
+	return uuid.NewV4()
 }
 
 func init() {

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copyright 2015 VMware, Inc. All Rights Reserved.
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 # Author: Tom Hite (thite@vmware.com)
 #
 # SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
@@ -19,3 +20,5 @@ cp -a ../web/templates/stats html/
 
 # Run the thing. Check it at http://localhost:8080
 ./go-reminders -dbtype=mem
+
+curl -X Post -H "content-Type: application/json" http://localhost:8080/api/reminders -d "$(cat ../test-reminder.json)"

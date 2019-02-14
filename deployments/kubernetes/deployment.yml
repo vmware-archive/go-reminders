@@ -1,3 +1,10 @@
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
+#
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
+
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -14,8 +21,8 @@ spec:
         app: go-reminders
     spec:
       containers:
-        - name: go-winery
-          image: tdhite/go-reminders:latest
+        - name: go-reminders
+          image: {{docker-registry-repo}}
           command:
             - "/go-reminders"
             - "-dbtype=mem"
@@ -23,3 +30,5 @@ spec:
             - containerPort: 8080
               name: go-reminders
               protocol: TCP
+      imagePullSecrets:
+        - name: go-reminders-registry-creds

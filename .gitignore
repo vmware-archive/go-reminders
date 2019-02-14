@@ -1,5 +1,8 @@
-/go-reminders
-/go-reminders.tgz
 *.log
 *.a
 *.so
+*.swp
+
+cmd/go-reminders/go-reminders
+build/docker/go-reminders
+build/docker/html
