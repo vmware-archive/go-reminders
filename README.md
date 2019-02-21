@@ -51,7 +51,7 @@ tables.
 A memory only backing can be used for testing or demonstrative purposes. The
 MemDB service is purely in memory and provides no persistence at all, nor
 distribution of the reminders across go-reminder instances. It is intended
-mainly for testing and development purposes. To use that, invote go-reminders
+mainly for testing and development purposes. To use that, invoke go-reminders
 similarly to the following:
 
 ```DBTYPE=mem ./cmd/go-reminders/go-reminders```
