@@ -102,7 +102,7 @@ The project includes a Makefile for use in building the go-reminders
 microservice. Because the makefile builds a docker container by default,
 you must provide a container name for pushing to a registry.
 
-    export CONTAINERNAME=myreponame/go-reminders
+    export CONTAINER=myreponame/go-reminders
     make
 
 That will build and push the container assuming you have already logged
@@ -111,7 +111,7 @@ in to your registry with "docker login". If you are using
 the makefile as follows to preclude pushing the docker container, instead
 using the concourse resource to perform that task:
 
-    export CONTAINERNAME=myreponame/go-reminders 
+    export CONTAINER=myreponame/go-reminders 
     make cmd/go-reminders/go-reminders
 
 The output of the concourse task would be the go-reminders executable.
