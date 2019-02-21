@@ -39,9 +39,11 @@ clean:
 .PHONY: clean
 
 run:
-	docker run -d -p 8080:8080 go-reminders /go-reminders -a 172.16.78.227
+	docker run --name go-reminders -d -p 8080:8080 $(CONTAINER) /go-reminders -a 172.16.78.227
 .PHONY: run
 
 stop:
-	killall go-reminders
+	-killall go-reminders
+	-docker stop go-reminders
+	-docker rm go-reminders
 .PHONY: stop
