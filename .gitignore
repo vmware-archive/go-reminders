@@ -3,6 +3,7 @@
 *.so
 *.swp
 
+cmd/go-reminders/go-reminders-darwin
 cmd/go-reminders/go-reminders
 build/docker/go-reminders
 build/docker/html

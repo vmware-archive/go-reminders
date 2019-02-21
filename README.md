@@ -54,7 +54,7 @@ distribution of the reminders across go-reminder instances. It is intended
 mainly for testing and development purposes. To use that, invote go-reminders
 similarly to the following:
 
-```DBTYPE=mem ./go-reminders```
+```DBTYPE=mem ./cmd/go-reminders/go-reminders```
 
 or use a similar environment setting in a kubernetes deployment.
 
@@ -99,11 +99,11 @@ To get the code, get it similarly to the following:
 
 #### Build the Code
 The project includes a Makefile for use in building the go-reminders
-microservice. Because the makefile builds a docker container by default,
+microservice. To build a docker container,
 you must provide a container name for pushing to a registry.
 
     export CONTAINERNAME=myreponame/go-reminders
-    make
+    make container
 
 That will build and push the container assuming you have already logged
 in to your registry with "docker login". If you are using
@@ -116,9 +116,13 @@ using the concourse resource to perform that task:
 
 The output of the concourse task would be the go-reminders executable.
 
+To build for mac use the following.  Examples elsewhere in this document should switch to referencing `go-reminders-darwin` instead of `go-reminders`
+
+    make cmd/go-reminders/go-reminders-darwin
+
 #### CI/CD Pipelines
 The code includes various pipeines in the [build/ci](build/ci) directory. They can by used
-assuming the apprpriate tool (i.e., Jenkins, Concourse or the like) is in
+assuming the appropriate tool (i.e., Jenkins, Concourse or the like) is in
 place. Some alteration to the configuration may be necessary depending on your setup.
 
 ##### Notes on Using Concourse
@@ -187,7 +191,7 @@ for example:
     ...
 
 Sample deployment and service manifests are provided in
-[kubernets](deployments/kubernetes).  Run those similarly to the following:
+[kubernetes](deployments/kubernetes).  Run those similarly to the following:
 
     kubectl create -f deployment.yml
     kubectl create -f service.yml
