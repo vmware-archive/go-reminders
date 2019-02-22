@@ -29,7 +29,7 @@ resources:
     type: git
     source:
       uri: ((go-reminders-git-repo))
-      branch: kubernetes
+      branch: master
       private_key: ((private-git-repo-key))
 
   - name: docker-go-reminders-image
