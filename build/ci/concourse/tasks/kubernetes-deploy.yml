@@ -1,4 +1,4 @@
-# go-winery kubernetes-deploy.yml
+# go-reminders kubernetes-deploy.yml
 #
 # Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 # Author: Tom Hite (thite@vmware.com)
@@ -12,11 +12,12 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tag: 1.9.2
+    tag: 1.11.5
 
 inputs:
-  - name: git-espwine-repo
-  - name: docker
+  - name: git-reminders-repo
+  - name: version
+  - name: kubernetes
 
 run:
-  path: git-espwine-repo/go-winery/ci/scripts/kubernetes-deploy.sh
+  path: git-reminders-repo/build/ci/concourse/scripts/kubernetes-deploy.sh

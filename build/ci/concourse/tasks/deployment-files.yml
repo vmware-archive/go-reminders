@@ -1,4 +1,4 @@
-# go-winery deployment-files.yml
+# go-reminders deployment-files.yml
 #
 # Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 # Author: Tom Hite (thite@vmware.com)
@@ -19,7 +19,7 @@ inputs:
   - name: version
 
 outputs:
-  - name: docker
+  - name: kubernetes
 
 run:
-  path: git-espwine-repo/build/ci/concourse/scripts/deployment-files.sh
+  path: git-reminders-repo/build/ci/concourse/scripts/deployment-files.sh

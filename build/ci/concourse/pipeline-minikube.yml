@@ -29,7 +29,7 @@ resources:
     type: git
     source:
       uri: ((go-reminders-git-repo))
-      branch: master
+      branch: kubernetes
       private_key: ((private-git-repo-key))
 
   - name: docker-go-reminders-image
@@ -88,3 +88,31 @@ jobs:
           tag: version/number
           tag_as_latest: true
           skip_download: true
+
+  - name: deploy
+    serial_groups:
+      - version
+    plan:
+      - get: git-reminders-repo
+        passed: [build-container]
+        trigger: true
+      - get: version
+        passed: [increment-version]
+      - get: docker-go-reminders-image
+        passed: [build-container]
+      - task: task-deployment-files
+        file: git-reminders-repo/build/ci/concourse/tasks/deployment-files.yml
+        params:
+          container: ((docker-registry-repo))
+      - task: kubernetes-deploy
+        file: git-reminders-repo/build/ci/concourse/tasks/kubernetes-deploy.yml
+        params:
+          cluster_url: ((k8s-cluster-url))
+          namespace: default
+          resource_type: deployment
+          resource_name: go-reminders
+          container: ((docker-registry-repo))
+          cluster_ca: ((k8s-cluster-ca))
+          admin_key: ((k8s-admin-key))
+          admin_cert: ((k8s-admin-cert))
+          admin_token: ((k8s-admin-token))
