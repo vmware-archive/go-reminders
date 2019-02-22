@@ -11,8 +11,10 @@ docker-registry-email: "myemail@someserver.com"
 docker-registry-user: "mydockerhubuser"
 docker-registry-passwd: "mydockerhubpassword"
 semver-git-repo: "git@github.com:mygithubid/semvers"
+semver-git-repo-branch: master
 semver-file: "go-reminders"
 go-reminders-git-repo: "git@github.com/mygithubid/go-reminders"
+go-reminders-git-repo-branch: "master"
 
 private-git-repo-key: |
   -----BEGIN RSA PRIVATE KEY-----

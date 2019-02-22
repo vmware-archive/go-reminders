@@ -96,7 +96,7 @@ else
 fi
 
 # run the correct commands
-./kubectl get ${resource_type}/${resource_name} >/dev/null 2>&1
+${KUBECTL} get ${resource_type}/${resource_name} >/dev/null 2>&1
 if [ $? -eq 0 ]; then
     # Note: assume resource_name and the container name equate.
     $KUBECTL set image ${resource_type}/${resource_name} ${resource_name}=${container}:${tag}
@@ -105,7 +105,7 @@ else
     $KUBECTL create -f kubernetes/deployment.yml
 fi
 
-./kubectl get service/${resource_name} >/dev/null 2>&1
+${KUBECTL} get service/${resource_name} >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     # No service yet, start it.
     $KUBECTL create -f kubernetes/service.yml

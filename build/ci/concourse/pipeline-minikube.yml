@@ -21,7 +21,7 @@ resources:
     source:
       driver: git
       uri: ((semver-git-repo))
-      branch: master
+      branch: ((semver-git-repo-branch))
       file: ((semver-file))
       private_key: ((private-git-repo-key))
 
@@ -29,7 +29,7 @@ resources:
     type: git
     source:
       uri: ((go-reminders-git-repo))
-      branch: master
+      branch: ((go-reminders-git-repo-branch))
       private_key: ((private-git-repo-key))
 
   - name: docker-go-reminders-image
