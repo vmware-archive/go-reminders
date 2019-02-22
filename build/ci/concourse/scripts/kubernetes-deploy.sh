@@ -1,5 +1,5 @@
 #!/bin/bash
-# go-winery kubernetes-deploy.sh
+# go-reminders kubernetes-deploy.sh
 #
 # Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 # Author: Tom Hite (thite@vmware.com)
@@ -7,31 +7,33 @@
 # SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
 #
 
-set -e -x
+set -x
 
 # Save current directory
 TOP="$(pwd)"
 
 # install kubectl
-curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.8.3/bin/linux/amd64/kubectl
-chmod +x kubectl
-
-image=$(cat $image_name)
-tag=$(cat $image_tag)
-
-echo "$cluster_ca" | base64 -d > ca.pem
-
-# if using a bearer token, admin keys are useless
-if [ -z "$admin_token" ]; then
-    echo "$admin_key" | base64 -d > key.pem
-    echo "$admin_cert" | base64 -d > cert.pem
+LATEST="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+if [ $? -ne 0 ]; then
+    echo "Failed to obtain latest kubectl release. Aborting!"
+    exit 1
 fi
 
-# list the directory now for debugging purposes
-ls -lat
+curl -LO https://storage.googleapis.com/kubernetes-release/release/${LATEST}/bin/linux/amd64/kubectl
+if [ $? -ne 0 ]; then
+    echo "Failed to download kubectl. Aborting!"
+    exit 1
+fi
+chmod +x kubectl
 
+tag=$(cat version/version)
+
+# validate parameters
 ret=0
-
+if [ -z "${cluster_ca}" ]; then
+    echo "ERROR: cluster_ca not supplied. Aborting!"
+    ret=1
+fi
 if [ -z "${cluster_url}" ]; then
     echo "ERROR: cluster_url not supplied. Aborting!"
     ret=1
@@ -48,30 +50,63 @@ if [ -z "${resource_name}" ]; then
     echo "ERROR: resource_name not supplied. Aborting!"
     ret=1
 fi
-if [ -z "${container_name}" ]; then
-    container_name=$resource_name
+if [ -z "${container}" ]; then
+    echo "ERROR: container not supplied. Aborting!"
+    ret=1
 fi
-if [ -z "${image}" ]; then
-    echo "ERROR: image_name not supplied. Aborting!"
+if [ -z "${admin_key}" ]; then
+    echo "ERROR: admin_key not supplied. Aborting!"
+    ret=1
+fi
+if [ -z "${admin_cert}" ]; then
+    echo "ERROR: admin_cert not supplied. Aborting!"
+    ret=1
+fi
+if [ -z "${admin_token}" ]; then
+    echo "ERROR: admin_token not supplied. Aborting!"
     ret=1
 fi
 if [ -z "${tag}" ]; then
-    echo "ERROR: image_tag not supplied. Aborting!"
+    echo "ERROR: tag (version) not supplied. Aborting!"
     ret=1
 fi
-
 if [ $ret -ne 0 ]; then
     exit $ret
 fi
 
-# build kubectl command line
-KUBECTL="./kubectl --server=$cluster_url --namespace=$namespace --certificate-authority=ca.pem"
-if [ -z "$admin_token" ]; then
-    KUBECTL="$KUBECTL --client-key=key.pem --client-certificate=cert.pem"
-else
-    KUBECTL="$KUBECTL --token=${admin_token}"
+echo "build credentials"
+
+echo "$cluster_ca" | base64 -d > ca.pem
+
+# if using a bearer token or using minikube, admin keys are useless
+if [ -z "$admin_token" -o "${admin_token}" == "MINIKUBE" ]; then
+    echo "$admin_key" | base64 -d > key.pem
+    echo "$admin_cert" | base64 -d > cert.pem
 fi
 
-$KUBECTL set image deployment/$resource_name $container_name=$image:$tag
+# list the directory now for debugging purposes
+ls -lat
 
-echo ""
+# build kubectl command line
+KUBECTL="./kubectl --server=${cluster_url} --namespace=$namespace --certificate-authority=ca.pem"
+if [ -z "$admin_token" -o "${admin_token}" == "MINIKUBE" ]; then
+    KUBECTL="${KUBECTL} --client-key=key.pem --client-certificate=cert.pem"
+else
+    KUBECTL="${KUBECTL} --token=${admin_token}"
+fi
+
+# run the correct commands
+./kubectl get ${resource_type}/${resource_name} >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    # Note: assume resource_name and the container name equate.
+    $KUBECTL set image ${resource_type}/${resource_name} ${resource_name}=${container}:${tag}
+else
+    # No deployment yet, start it.
+    $KUBECTL create -f kubernetes/deployment.yml
+fi
+
+./kubectl get service/${resource_name} >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    # No service yet, start it.
+    $KUBECTL create -f kubernetes/service.yml
+fi

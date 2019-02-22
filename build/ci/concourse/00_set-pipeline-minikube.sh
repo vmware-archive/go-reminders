@@ -12,5 +12,5 @@ PIPELINE="pipeline-minikube.yml"
 fly -t k8s-cluster set-pipeline --pipeline=go-reminders --load-vars-from="${PARAMS}" --config="${PIPELINE}"
 
 #if [ $? -eq 0 ]; then
-#	fly -t k8s-cluster unpause-pipeline --pipeline build-go-winery
+#	fly -t k8s-cluster unpause-pipeline --pipeline go-reminders
 #fi
