@@ -40,7 +40,7 @@ func (rem *Reminders) GetId(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	reminder, err := rem.s.GetId(id)
+	reminder, err := rem.s.GetID(id)
 	if err != nil {
 		rest.NotFound(w, r)
 		return
@@ -54,7 +54,7 @@ func (rem *Reminders) GetGuid(w rest.ResponseWriter, r *rest.Request) {
 	rem.stats.AddHit(r.RequestURI)
 
 	guid := r.PathParam("guid")
-	reminder, err := rem.s.GetGuid(guid)
+	reminder, err := rem.s.GetGUID(guid)
 	if err != nil {
 		rest.NotFound(w, r)
 		return
@@ -71,14 +71,14 @@ func (rem *Reminders) Post(w rest.ResponseWriter, r *rest.Request) {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if len(reminder.Guid) == 0 {
+	if len(reminder.GUID) == 0 {
 		u, err := newGuid()
 		if err != nil {
 			log.Printf("Error creating new UUID: %v\n", err)
 			rest.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		} else {
-			reminder.Guid = u.String()
+			reminder.GUID = u.String()
 		}
 	}
 
@@ -117,7 +117,7 @@ func (rem *Reminders) Put(w rest.ResponseWriter, r *rest.Request) {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	reminder, err := rem.s.GetId(id)
+	reminder, err := rem.s.GetID(id)
 	if err != nil {
 		rest.NotFound(w, r)
 		return
@@ -133,8 +133,8 @@ func (rem *Reminders) Put(w rest.ResponseWriter, r *rest.Request) {
 // Update (REST Put) a Reminder using guid as the key.
 func (rem *Reminders) PutGuid(w rest.ResponseWriter, r *rest.Request) {
 	guid := r.PathParam("guid")
-	reminder, err := rem.s.GetGuid(guid)
-	if reminder.Guid == "" {
+	reminder, err := rem.s.GetGUID(guid)
+	if reminder.GUID == "" {
 		rest.NotFound(w, r)
 		return
 	}
@@ -160,10 +160,10 @@ func (rem *Reminders) Delete(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	reminder, err := rem.s.DeleteId(id)
+	reminder, err := rem.s.DeleteID(id)
 
 	// If no record was found, Guid will remain empty
-	if reminder.Guid == "" {
+	if reminder.GUID == "" {
 		rest.NotFound(w, r)
 		return
 	}
@@ -181,10 +181,10 @@ func (rem *Reminders) Delete(w rest.ResponseWriter, r *rest.Request) {
 func (rem *Reminders) DeleteGuid(w rest.ResponseWriter, r *rest.Request) {
 	guid := r.PathParam("guid")
 
-	reminder, err := rem.s.DeleteGuid(guid)
+	reminder, err := rem.s.DeleteGUID(guid)
 
 	// If no record was found, Guid will remain empty
-	if reminder.Guid == "" {
+	if reminder.GUID == "" {
 		rest.NotFound(w, r)
 		return
 	}

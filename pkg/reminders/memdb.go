@@ -1,3 +1,5 @@
+// Package reminders holds the application logic to manage reminders (tasks one seeks to remember).
+//
 // Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
@@ -10,15 +12,16 @@ import (
 	"time"
 )
 
+// MemDB emulates an in-memory database to store reminders.
 type MemDB struct {
-	byGuid map[string]*Reminder
-	byId   map[int64]*Reminder
+	byGUID map[string]*Reminder
+	byID   map[int64]*Reminder
 	index  int64
 }
 
 ////// Storage Interface
 
-// Initialize and returns a new storage.
+// NewMemDB initialize and returns a new storage.
 func NewMemDB() (Storage, error) {
 	m := MemDB{}
 	m.Close() // this creates the tables
@@ -31,18 +34,19 @@ func NewMemDB() (Storage, error) {
 
 //// Storage Implementation
 func (db *MemDB) deleteReminder(r *Reminder) {
-	delete(db.byGuid, r.Guid)
-	delete(db.byId, r.Id)
+	delete(db.byGUID, r.GUID)
+	delete(db.byID, r.ID)
 }
 
-// Initialize the database and open it.
+// InitDB initialize the database and open it.
 func (db *MemDB) InitDB() error {
-	db.byGuid = make(map[string]*Reminder)
-	db.byId = make(map[int64]*Reminder)
+	db.byGUID = make(map[string]*Reminder)
+	db.byID = make(map[int64]*Reminder)
 	db.index = 0
 	return nil
 }
 
+// Close terminates the connection to the database.
 func (db *MemDB) Close() error {
 	db.InitDB()
 	return nil
@@ -54,65 +58,71 @@ func (db *MemDB) Drop() error {
 	return nil
 }
 
-func (db *MemDB) DeleteId(id int64) (Reminder, error) {
-	if r, ok := db.byId[id]; ok {
+// DeleteID removes the reminder with the given ID from the database.
+func (db *MemDB) DeleteID(id int64) (Reminder, error) {
+	if r, ok := db.byID[id]; ok {
 		db.deleteReminder(r)
 		return *r, nil
 	}
 
-	return Reminder{}, errors.New("Id does not exist.")
+	return Reminder{}, errors.New("ID does not exist")
 }
 
-func (db *MemDB) DeleteGuid(guid string) (Reminder, error) {
-	if r, ok := db.byGuid[guid]; ok {
+// DeleteGUID removes the reminder with the given GUID from the database
+func (db *MemDB) DeleteGUID(guid string) (Reminder, error) {
+	if r, ok := db.byGUID[guid]; ok {
 		db.deleteReminder(r)
 		return *r, nil
 	}
 
-	return Reminder{}, errors.New("Guid does not exist.")
+	return Reminder{}, errors.New("GUID does not exist")
 }
 
+// GetAll returns a list of all reminders in the database
 func (db *MemDB) GetAll() (*[]Reminder, error) {
 	r := make([]Reminder, 0)
-	for _, v := range db.byId {
+	for _, v := range db.byID {
 		r = append(r, *v)
 	}
 
 	return &r, nil
 }
 
-func (db *MemDB) GetId(id int64) (Reminder, error) {
-	if r, ok := db.byId[id]; ok {
+// GetID returns the reminder stored in the database specified by the given ID
+func (db *MemDB) GetID(id int64) (Reminder, error) {
+	if r, ok := db.byID[id]; ok {
 		return *r, nil
 	}
 
-	return Reminder{}, errors.New("Guid does not exist.")
+	return Reminder{}, errors.New("GUID does not exist")
 }
 
-func (db *MemDB) GetGuid(guid string) (Reminder, error) {
-	if r, ok := db.byGuid[guid]; ok {
+// GetGUID returns the reminder stored in the database specified by the given GUID
+func (db *MemDB) GetGUID(guid string) (Reminder, error) {
+	if r, ok := db.byGUID[guid]; ok {
 		return *r, nil
 	}
 
-	return Reminder{}, errors.New("Guid does not exist.")
+	return Reminder{}, errors.New("GUID does not exist")
 }
 
+// Save stores the given reminder in the database
 func (db *MemDB) Save(r Reminder) error {
 	// Check if this exists already
-	rem, err := db.GetGuid(r.Guid)
+	rem, err := db.GetGUID(r.GUID)
 	if err != nil {
-		if r.Id == 0 {
+		if r.ID == 0 {
 			db.index++
-			r.Id = db.index
+			r.ID = db.index
 		}
 	} else {
-		r.Id = rem.Id
+		r.ID = rem.ID
 		r.CreatedAt = rem.CreatedAt
 		r.DeletedAt = rem.DeletedAt
 		r.UpdatedAt = time.Now()
 	}
 
-	db.byGuid[r.Guid] = &r
-	db.byId[r.Id] = &r
+	db.byGUID[r.GUID] = &r
+	db.byID[r.ID] = &r
 	return nil
 }

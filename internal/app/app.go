@@ -1,3 +1,5 @@
+// Package app is the entry point for the go-reminders application
+//
 // Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //

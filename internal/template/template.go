@@ -102,7 +102,7 @@ func (t *Template) saveReminder(r reminders.Reminder) {
 	jsonData, err := json.Marshal(r)
 	perror(err)
 
-	url := t.generateAPIUrl(apiRoot + r.Guid)
+	url := t.generateAPIUrl(apiRoot + r.GUID)
 	log.Println("url: " + url)
 
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
@@ -155,7 +155,7 @@ func (t *Template) getStatsHits() map[string]int {
 	body, err := ioutil.ReadAll(res.Body)
 	perror(err)
 
-	data, err := stats.HitsFromJson(body)
+	data, err := stats.HitsFromJSON(body)
 	perror(err)
 
 	return data

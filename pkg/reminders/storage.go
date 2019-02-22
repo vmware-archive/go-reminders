@@ -13,11 +13,11 @@ type Storage interface {
 	InitDB() error
 	Close() error
 	Drop() error
-	DeleteId(int64) (Reminder, error)
-	DeleteGuid(string) (Reminder, error)
+	DeleteID(int64) (Reminder, error)
+	DeleteGUID(string) (Reminder, error)
 	GetAll() (*[]Reminder, error)
-	GetId(int64) (Reminder, error)
-	GetGuid(string) (Reminder, error)
+	GetID(int64) (Reminder, error)
+	GetGUID(string) (Reminder, error)
 	Save(r Reminder) error
 }
 
