@@ -17,12 +17,12 @@ func testAddHit(t *testing.T) {
 
 	s.AddHit(url)
 
-	if s.hits[url] != 1 {
+	if s.Hits[url] != 1 {
 		t.Fail()
 	}
 }
 
-func testJson(t *testing.T) {
+func testJSON(t *testing.T) {
 	hits := make(map[string]int)
 
 	hits["/api/reminders"] = 1
@@ -33,7 +33,7 @@ func testJson(t *testing.T) {
 		t.Fail()
 	}
 
-	if _, err := HitsFromJson(jsonData); err != nil {
+	if _, err := HitsFromJSON(jsonData); err != nil {
 		t.Errorf("Error: %v\n", err)
 		t.Fail()
 	}
@@ -46,5 +46,5 @@ func TestStats(t *testing.T) {
 	}
 
 	testAddHit(t)
-	testJson(t)
+	testJSON(t)
 }

@@ -1,3 +1,5 @@
+// Package reminders holds the application logic to manage reminders (tasks one seeks to remember).
+//
 // Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Copyright (c) 2013-2015 Antoine Imbert
 // Author: Tom Hite (thite@vmware.com)
@@ -18,19 +20,21 @@ import (
 // Reminder is serializable as json (tagged) and also SQL tags provide for
 // best fit database storage (see the Go sql provider for details).
 type Reminder struct {
-	Id        int64     `json:"id"`
-	Guid      string    `sql:"size:48;unique_index:idx_guid;size=32" json:"guid"`
+	ID        int64     `json:"id"`
+	GUID      string    `sql:"size:48;unique_index:idx_guid;size=32" json:"guid"`
 	Message   string    `json:"message"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	DeletedAt time.Time `json:"-"`
 }
 
+// Reminders holds the Storage and Stats structs.
 type Reminders struct {
 	s     Storage
 	stats stats.Stats
 }
 
+// NewReminders initialize and returns a new Reminders struct.
 func NewReminders(creds DBCreds, stats stats.Stats, insecure bool) (Reminders, error) {
 	r := Reminders{
 		stats: stats,

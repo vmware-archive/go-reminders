@@ -1,3 +1,5 @@
+// Package stats holds the statics logic of the go-reminders application
+//
 // Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tom Hite (thite@vmware.com)
 //
@@ -11,25 +13,26 @@ import (
 	"sync"
 )
 
-// store hits per URL
+// Stats store hits per URL
 type Stats struct {
-	hits map[string]int `json:"hits"`
-	lock sync.RWMutex
+	Hits map[string]int `json:"hits"`
+	lock *sync.RWMutex
 }
 
 func init() {
 	log.Println("Initialized stats package.")
 }
 
+// New initializes and returns a new Stats struct
 func New() Stats {
 	return Stats{
-		hits: make(map[string]int),
-		lock: sync.RWMutex{},
+		Hits: make(map[string]int),
+		lock: &sync.RWMutex{},
 	}
 }
 
-// Convert a JSON string to Go struct and return.
-func HitsFromJson(jsonData []byte) (map[string]int, error) {
+// HitsFromJSON convert a JSON string to Go struct and return.
+func HitsFromJSON(jsonData []byte) (map[string]int, error) {
 	var hits map[string]int
 	err := json.Unmarshal([]byte(jsonData), &hits)
 	if err != nil {

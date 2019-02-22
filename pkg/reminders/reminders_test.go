@@ -14,14 +14,14 @@ const (
 	testMsg = "reminder"
 )
 
-var g_Reminders Reminders
+var gReminders Reminders
 
 func testMemDBSave(t *testing.T) {
 	c := DBCreds{}
 	c.Init("", 0, "", "", "mem", "", "", "")
 
 	// Get a new test environment storage interface
-	g_Reminders, err := newTestReminders(c, true)
+	gReminders, err := newTestReminders(c, true)
 	if err != nil {
 		t.Error("Failed to create new Reminders, cannot continue.")
 		t.Fail()
@@ -38,9 +38,9 @@ func testMemDBSave(t *testing.T) {
 		}
 		r := Reminder{
 			Message: testMsg + strconv.Itoa(i),
-			Guid:    g.String(),
+			GUID:    g.String(),
 		}
-		if err := g_Reminders.s.Save(r); err != nil {
+		if err := gReminders.s.Save(r); err != nil {
 			t.Errorf("Failed to add reminder %s because %v\n", r.Message, err)
 			t.Fail()
 			break

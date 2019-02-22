@@ -1,3 +1,5 @@
+// Package reminders holds the application logic to manage reminders (tasks one seeks to remember).
+//
 // Copyright 2015-2019 VMware, Inc. All Rights Reserved.
 // Author: Tim Green (greent@vmware.com)
 //
@@ -15,10 +17,12 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Connection holds the connection information to etcd
 type Connection struct {
 	kapi client.KeysAPI
 }
 
+// NewEtcd initializes a new instance of the Connection struct
 func NewEtcd(host string) Connection {
 	var conn Connection
 	h := fmt.Sprintf("http://%s", host)
@@ -37,9 +41,10 @@ func NewEtcd(host string) Connection {
 	return conn
 }
 
+// GetDBCreds gets the database credentials from etcd and stores them in the DBCreds struct
 func (conn *Connection) GetDBCreds(d *DBCreds) error {
 	dbInfo := map[string]string{"/host": "", "/port": "", "/user": "", "/passwd": ""}
-	for key, _ := range dbInfo {
+	for key := range dbInfo {
 		resp, err := conn.kapi.Get(context.Background(), key, nil)
 		if err != nil {
 			return err
@@ -55,6 +60,7 @@ func (conn *Connection) GetDBCreds(d *DBCreds) error {
 	return nil
 }
 
+// SetDBCreds stores database credentials from the DBCreds struct in Etcd
 func (conn *Connection) SetDBCreds(d *DBCreds) {
 	port := strconv.Itoa(d.Port())
 	conn.kapi.Set(context.Background(), "/host", d.Address(), nil)
