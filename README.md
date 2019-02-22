@@ -20,11 +20,9 @@ microservice:
 Running go-reminders generally targets a kubenernetes cluster. It runs in the
 default namespace.
 
-In addition, as with any kubernetes cluster, credentials should be setup,
-minimally, as follows:
-
-Any secrets for pushing and pulling containers from the Docker registry must
-exist before building the microservice. The way to add such credentials is as
+In addition, as with any kubernetes cluster, credentials should be setup.
+Secrets for pushing and pulling containers from the Docker registry must exist
+before building the microservice. The way to add such credentials is as
 follows:
 
 ```kubectl create secret docker-registry go-reminders-registry-creds --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>```
@@ -149,8 +147,8 @@ the environment with the long form switch name in all capital letters.
 
 ##### Standalone
 For instance To invoke go-reminders with a mysql database at
-mysql.corp.local:3306, with user credentials as root/rootpasswd, the
-following:
+mysql.corp.local:3306, with user credentials as root/rootpasswd, issue the
+following command:
 
     HOST=mysql.corp.local:3306 USER=root PASSWD=rootpasswd DBTYPE=mysql cmd/go-reminders/go-reminders
 
@@ -190,8 +188,9 @@ for example:
           value: "rootpasswd"
     ...
 
-Sample deployment and service manifests are provided in
-[kubernetes](deployments/kubernetes).  Run those similarly to the following:
+Sample deployment and service manifests are provided in the
+[kubernetes](deployments/kubernetes) directory.  Run those similarly to the
+following:
 
     kubectl create -f deployment.yml
     kubectl create -f service.yml
