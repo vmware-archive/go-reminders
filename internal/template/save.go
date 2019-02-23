@@ -46,8 +46,11 @@ func (t *Template) SaveHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := html_template.New(page).ParseFiles(path)
 	if err == nil {
-		alldata := t.getAllReminders()
-		if err := tmpl.ExecuteTemplate(w, page, alldata); err != nil {
+		td := RemindersData{
+			Reminders: t.getAllReminders(),
+			UrlRoot:   t.VHost,
+		}
+		if err := tmpl.ExecuteTemplate(w, page, td); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	} else {

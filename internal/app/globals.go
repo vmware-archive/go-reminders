@@ -19,10 +19,11 @@ var (
 	DBName      string
 	DBType      string
 	ContentRoot string
-	APIAddress  string
 	CfgType     string
 	CfgSrc      string
 	CfgSrcExtra string
 	Insecure    bool
+	APIBaseUrl  string
+	VHost       string
 	Stats       stats.Stats = stats.New()
 )

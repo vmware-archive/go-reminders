@@ -12,12 +12,10 @@ metadata:
   labels:
     app: go-reminders
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: go-reminders
   ports:
     - port: 8080
       targetPort: 8080
       protocol: TCP
-      nodePort: 30080
-  externalTrafficPolicy: Cluster

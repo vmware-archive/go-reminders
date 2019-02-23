@@ -23,15 +23,19 @@ func (t *Template) EditHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := html_template.New(page).ParseFiles(path)
 	if err == nil {
-		var data reminders.Reminder
+		data := make([]reminders.Reminder, 1)
 		guid := r.FormValue("guid")
 		if guid == "" {
 			// this is a new reminder request, so create one and
-			data = reminders.Reminder{}
+			data[0] = reminders.Reminder{}
 		} else {
-			data = t.getReminder(guid)
+			data[0] = t.getReminder(guid)
 		}
-		if err := tmpl.ExecuteTemplate(w, page, data); err != nil {
+		td := RemindersData{
+			Reminders: data,
+			UrlRoot:   t.VHost,
+		}
+		if err := tmpl.ExecuteTemplate(w, page, td); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	} else {

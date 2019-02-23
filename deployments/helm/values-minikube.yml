@@ -1,0 +1,65 @@
+# Default values for go-reminders.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: tdhite/go-reminders
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+container:
+  port:
+    containerPort: 8080
+    name: go-reminders
+  env:
+    - name: DBTYPE
+      value: mem
+    - name: VHOST
+      value: "http://minikube.corp.local/go-reminders"
+  livenessProbe:
+    path: /stats/hits
+  readinessProbe:
+    path: /stats/hits
+  
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/tls-acme: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  paths:
+    path: "/go-reminders"
+  hosts: 
+    - "minikube.corp.local"
+  tls: []
+  #  - secretName: go-reminders-tls
+  #    hosts:
+  #      - go-reminders.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

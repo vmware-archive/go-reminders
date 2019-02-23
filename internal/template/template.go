@@ -11,7 +11,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"path/filepath"
+	"net/url"
+	"path"
 
 	"github.com/vmware/go-reminders/pkg/reminders"
 	"github.com/vmware/go-reminders/pkg/stats"
@@ -21,15 +22,23 @@ const apiRoot = "/api/reminders"
 
 type Template struct {
 	ContentRoot string
-	APIHost     string
+	VHost       string
+	APIBase     string
 	stats       stats.Stats
 }
 
+type RemindersData struct {
+	Reminders []reminders.Reminder
+	UrlRoot   string
+}
+
 // Return a new Template object initialized -- convenience function.
-func New(contentRoot string, apiHost string, stats stats.Stats) Template {
+func New(contentRoot string, vhost string, apiroot string,
+	stats stats.Stats) Template {
 	return Template{
 		ContentRoot: contentRoot,
-		APIHost:     apiHost,
+		APIBase:     apiroot,
+		VHost:       vhost,
 		stats:       stats,
 	}
 }
@@ -38,8 +47,17 @@ func init() {
 	log.Println("Initialized Template.")
 }
 
-func (t *Template) generateAPIUrl(path string) string {
-	return "http://" + filepath.Join(t.APIHost, path)
+func (t *Template) generateAPIUrl(p string) string {
+	u, err := url.Parse(t.APIBase)
+	if err != nil {
+		log.Printf("ERROR: failed to parse APIRoot %s!\n", t.APIBase)
+		return p
+	} else {
+		log.Printf("generateAPIUrl parsed APIRoot as %s!\n", u.String())
+	}
+	u.Path = path.Join(u.Path, p)
+	log.Printf("generateAPIUrl created final URL as %s!\n", u.String())
+	return u.String()
 }
 
 // Retrieve a Reminder from storage via REST call.

@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	contentRoot = "www.website.com"
-	apiHost     = "www.website.com:8080"
+	contentRoot = "."
+	vhost       = "http://www.website.com:8080"
+	apibase     = "http://www.website.com:8080"
 )
 
 func TestGenerateAPIUrl(t *testing.T) {
@@ -21,12 +22,13 @@ func TestGenerateAPIUrl(t *testing.T) {
 	}
 
 	tmpl := Template{
-		ContentRoot: "http://www.website.com",
-		APIHost:     apiHost,
+		ContentRoot: contentRoot,
+		VHost:       vhost,
+		APIBase:     apibase,
 	}
 
 	expected := "http://www.website.com:8080/testing"
-	actual := tmpl.generateAPIUrl("testing")
+	actual := tmpl.generateAPIUrl("/testing")
 
 	if expected != actual {
 		t.Errorf("Test failed!, expected: '%s', got: '%s'", expected, actual)

@@ -19,12 +19,12 @@
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="/html/skeleton/css/normalize.css">
-  <link rel="stylesheet" href="/html/skeleton/css/skeleton.css">
+  <link rel="stylesheet" href="{{.UrlRoot}}/html/skeleton/css/normalize.css">
+  <link rel="stylesheet" href="{{.UrlRoot}}/html/skeleton/css/skeleton.css">
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="/html/skeleton/images/favicon.png">
+  <link rel="icon" type="image/png" href="http://127.0.0.1/html/skeleton/images/favicon.png">
 
 </head>
 <body>
@@ -37,7 +37,7 @@
       <h4>All Your Reminders</h4>
     </div>
     <div class="three columns">
-      <form action="/html/tmpl/edit" method="post">
+      <form action="{{.UrlRoot}}/html/tmpl/edit" method="post">
         <input type="hidden" name="guid" value="">
         <input class="button" type="submit" value="New Reminder">
       </form>
@@ -55,17 +55,18 @@
           <th>Delete</th>
         </thead>
         <tbody>
-        {{range $reminder := .}}
+        {{$urlroot := .UrlRoot}}
+        {{range $reminder := .Reminders}}
           <tr>
             <td><p>{{$reminder.Message}}</p></td>
             <td>
-              <form action="/html/tmpl/edit" method="post">
+              <form action="{{$urlroot}}/html/tmpl/edit" method="post">
                 <input type="hidden" name="guid" value="{{$reminder.GUID}}">
                 <input class="button-primary" type="submit" value="Edit">
               </form>
             </td>
             <td>
-              <form action="/html/tmpl/delete" method="post">
+              <form action="{{$urlroot}}/html/tmpl/delete" method="post">
                 <input type="hidden" name="guid" value="{{$reminder.GUID}}">
                 <input class="button-primary" type="submit" value="Delete">
               </form>

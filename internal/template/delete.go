@@ -29,8 +29,11 @@ func (t *Template) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := html_template.New(page).ParseFiles(path)
 	if err == nil {
-		data := t.getAllReminders()
-		if err := tmpl.ExecuteTemplate(w, page, data); err != nil {
+		td := RemindersData{
+			Reminders: t.getAllReminders(),
+			UrlRoot:   t.VHost,
+		}
+		if err := tmpl.ExecuteTemplate(w, page, td); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	} else {

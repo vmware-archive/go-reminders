@@ -19,12 +19,12 @@
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="/html/skeleton/css/normalize.css">
-  <link rel="stylesheet" href="/html/skeleton/css/skeleton.css">
+  <link rel="stylesheet" href="{{.UrlRoot}}/html/skeleton/css/normalize.css">
+  <link rel="stylesheet" href="{{.UrlRoot}}/html/skeleton/css/skeleton.css">
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="/html/skeleton/images/favicon.png">
+  <link rel="icon" type="image/png" href="http://127.0.0.1/html/skeleton/images/favicon.png">
 
 </head>
 <body>
@@ -47,16 +47,16 @@
   <div class="row">
     <div class="one column">&nbsp;</div>
     <div class="ten columns">
-      {{if .}}
+      {{if .Stats}}
       <table class="u-full-width">
         <thead>
           <th>Request URL</th>
           <th>Count</th>
         </thead>
         <tbody>
-        {{range $k, $v := .}}
+        {{range $k, $v := .Stats}}
           <tr>
-            <td><a href="{{$k}}">{{$k}}</a></td>
+            <td>{{$k}}</td>
             <td>{{$v}}</td>
 		  </tr>
         {{end}}

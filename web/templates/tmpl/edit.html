@@ -6,7 +6,7 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
   <title>Reminders</title>
-  <meta name="description" content="All Reminders">
+  <meta name="description" content="Edit Reminder">
   <meta name="author" content="Tom Hite, VMware, Inc.">
 
   <!-- Mobile Specific Metas
@@ -19,12 +19,12 @@
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="/html/skeleton/css/normalize.css">
-  <link rel="stylesheet" href="/html/skeleton/css/skeleton.css">
+  <link rel="stylesheet" href="{{.UrlRoot}}/html/skeleton/css/normalize.css">
+  <link rel="stylesheet" href="{{.UrlRoot}}/html/skeleton/css/skeleton.css">
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="/html/skeleton/images/favicon.png">
+  <link rel="icon" type="image/png" href="{{.UrlRoot}}/html/skeleton/images/favicon.png">
 
 </head>
 <body>
@@ -37,11 +37,11 @@
   <div class="one column">&nbsp;</div>
   <div class="ten columns">
     <h4>Editing Message:</h4>
-    <form action="/html/tmpl/save" method="post">
-      <input type="hidden" name="guid" value="{{.GUID}}">
-      <input class="u-full-width" type="text" maxlength="255" name="message" value="{{.Message}}">
+    <form action="{{.UrlRoot}}/html/tmpl/save" method="post">
+      <input type="hidden" name="guid" value="{{(index .Reminders 0).GUID}}">
+      <input class="u-full-width" type="text" maxlength="255" name="message" value="{{(index .Reminders 0).Message}}">
       <input class="button-primary" type="submit" value="Save">
-      <a class="button" href="/html/tmpl/index">Cancel</a>
+      <a class="button" href="{{.UrlRoot}}/html/tmpl/index">Cancel</a>
     </form>
   </div>
   <div class="one column">&nbsp;</div>
