@@ -56,3 +56,44 @@ func TestMemDB(t *testing.T) {
 
 	testMemDBSave(t)
 }
+
+func TestMemDBDelete(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping: short mode ignores tests.")
+		return
+	}
+
+	c := DBCreds{}
+	c.Init("", 0, "", "", "mem", "", "", "")
+
+	// Get a new test environment storage interface
+	gReminders, err := newTestReminders(c, true)
+	if err != nil {
+		t.Fatal("Failed to create new Reminders, cannot continue.")
+	}
+
+	// add a reminder of reminders
+	g, err := newGuid()
+	if err != nil {
+		t.Fatalf("Failed to create new guid for reminder because %v\n", err)
+	}
+	r := Reminder{
+		Message: testMsg + strconv.Itoa(1),
+		GUID:    g.String(),
+	}
+	if err := gReminders.s.Save(r); err != nil {
+		t.Fatalf("Failed to add reminder %s because %v\n", r.Message, err)
+	}
+
+	reminderList, _ := gReminders.s.GetAll()
+	countBeforeDelete := len(*reminderList)
+	gReminders.s.DeleteGUID(g.String())
+	reminderList, _ = gReminders.s.GetAll()
+	countAfterDelete := len(*reminderList)
+	if (countBeforeDelete - 1) != countAfterDelete {
+		t.Logf("The count before was %d\n", countBeforeDelete)
+		t.Logf("The count after was %d\n", countAfterDelete)
+		t.Fatalf("Delete of the reminder failed")
+	}
+
+}

@@ -44,7 +44,7 @@ func (t *Template) generateAPIUrl(path string) string {
 
 // Retrieve a Reminder from storage via REST call.
 func (t *Template) getReminder(guid string) reminders.Reminder {
-	url := t.generateAPIUrl(apiRoot + guid)
+	url := t.generateAPIUrl(apiRoot + "/" + guid)
 	log.Println("url: " + url)
 
 	res, err := http.Get(url)
@@ -80,7 +80,7 @@ func (t *Template) getAllReminders() []reminders.Reminder {
 
 // Delete the Reminder, to which guid refers, from storage via REST call.
 func (t *Template) deleteReminder(guid string) {
-	url := t.generateAPIUrl(apiRoot)
+	url := t.generateAPIUrl(apiRoot + "/" + guid)
 	log.Println("url: " + url)
 
 	req, err := http.NewRequest("DELETE", url, nil)
@@ -102,7 +102,7 @@ func (t *Template) saveReminder(r reminders.Reminder) {
 	jsonData, err := json.Marshal(r)
 	perror(err)
 
-	url := t.generateAPIUrl(apiRoot + r.GUID)
+	url := t.generateAPIUrl(apiRoot + "/" + r.GUID)
 	log.Println("url: " + url)
 
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
