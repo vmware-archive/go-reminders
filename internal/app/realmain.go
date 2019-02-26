@@ -17,6 +17,14 @@ import (
 	"github.com/vmware/go-reminders/pkg/reminders"
 )
 
+func getUrlRoot() string {
+	if VHost == "" {
+		return "http://localhost:" + strconv.Itoa(ListenPort)
+	} else {
+		return VHost
+	}
+}
+
 // Http handler functions for dealing with various html site requests for
 // home page, editing, deleting and saving reminder objects.
 //
@@ -27,31 +35,31 @@ import (
 // things via separate handlers for each html (site) request.
 func templateHomeHandler(w http.ResponseWriter, r *http.Request) {
 	Stats.AddHit(r.RequestURI)
-	t := template.New(ContentRoot, APIAddress+":"+strconv.Itoa(ListenPort), Stats)
+	t := template.New(ContentRoot, getUrlRoot(), APIBaseUrl, Stats)
 	t.IndexHandler(w, r)
 }
 
 func templateEditHandler(w http.ResponseWriter, r *http.Request) {
 	Stats.AddHit(r.RequestURI)
-	t := template.New(ContentRoot, APIAddress+":"+strconv.Itoa(ListenPort), Stats)
+	t := template.New(ContentRoot, getUrlRoot(), APIBaseUrl, Stats)
 	t.EditHandler(w, r)
 }
 
 func templateSaveHandler(w http.ResponseWriter, r *http.Request) {
 	Stats.AddHit(r.RequestURI)
-	t := template.New(ContentRoot, APIAddress+":"+strconv.Itoa(ListenPort), Stats)
+	t := template.New(ContentRoot, getUrlRoot(), APIBaseUrl, Stats)
 	t.SaveHandler(w, r)
 }
 
 func templateDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	Stats.AddHit(r.RequestURI)
-	t := template.New(ContentRoot, APIAddress+":"+strconv.Itoa(ListenPort), Stats)
+	t := template.New(ContentRoot, getUrlRoot(), APIBaseUrl, Stats)
 	t.DeleteHandler(w, r)
 }
 
 func statsHitsHandler(w http.ResponseWriter, r *http.Request) {
 	Stats.AddHit(r.RequestURI)
-	t := template.New(ContentRoot, APIAddress+":"+strconv.Itoa(ListenPort), Stats)
+	t := template.New(ContentRoot, getUrlRoot(), APIBaseUrl, Stats)
 	t.StatsHitsHandler(w, r)
 }
 

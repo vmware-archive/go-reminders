@@ -26,4 +26,7 @@ cp -a ../../web/templates/stats html/
 
 # Build and push the container
 docker build --rm -t ${CONTAINER} .
-docker push ${CONTAINER}
+
+if [ -z "$1" ]; then
+    docker push ${CONTAINER}
+fi

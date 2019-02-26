@@ -19,8 +19,8 @@ func (t *Template) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	var data []reminders.Reminder
 
 	guid := r.URL.Query().Get("guid")
+	log.Printf("guid: \"%s\"\n", guid)
 	if guid == "" {
-		log.Printf("guid: \"%s\"\n", guid)
 		data = t.getAllReminders()
 	} else {
 		r := t.getReminder(guid)
@@ -34,7 +34,12 @@ func (t *Template) IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := html_template.New(page).ParseFiles(path)
 	if err == nil {
-		if err := tmpl.ExecuteTemplate(w, page, data); err != nil {
+		td := RemindersData{
+
+			Reminders: data,
+			UrlRoot:   t.VHost,
+		}
+		if err := tmpl.ExecuteTemplate(w, page, td); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	} else {

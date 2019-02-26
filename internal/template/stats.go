@@ -12,6 +12,11 @@ import (
 	"path/filepath"
 )
 
+type StatsData struct {
+	Stats   map[string]int
+	UrlRoot string
+}
+
 // Generate the main (home) page of the site.
 func (t *Template) StatsHitsHandler(w http.ResponseWriter, r *http.Request) {
 	stats := t.getStatsHits()
@@ -22,7 +27,11 @@ func (t *Template) StatsHitsHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := html_template.New(page).ParseFiles(path)
 	if err == nil {
-		if err := tmpl.ExecuteTemplate(w, page, stats); err != nil {
+		sd := StatsData{
+			Stats:   stats,
+			UrlRoot: t.VHost,
+		}
+		if err := tmpl.ExecuteTemplate(w, page, sd); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	} else {

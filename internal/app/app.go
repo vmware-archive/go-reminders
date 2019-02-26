@@ -39,6 +39,10 @@ const (
 	cfgSrcUsage        = "host (or ip address) of configuration source"
 	cfgSrcExtraDefault = ""
 	cfgSrcExtraUsage   = "Extra info for config source, e.g., execute URL for vRO"
+	APIBaseUrlDefault  = "http://127.0.0.1:8080"
+	APIBaseUrlUsage    = "set the base url for internal REST api calls"
+	vHostDefault       = ""
+	vHostUsage         = "set the base url for vHost setups like Kubernetes ingress, e.g. http://myhost.corp.local/go-reminders"
 )
 
 func setEnvString(val *string, key string, dflt string) {
@@ -103,6 +107,10 @@ func configureFromEnv() {
 	log.Printf("Configure CfgSrc to: %v\n", CfgSrc)
 	setEnvString(&CfgSrcExtra, "CFGSRCEXTRA", cfgSrcExtraDefault)
 	log.Printf("Configure CfgSrcExtra to: %v\n", CfgSrcExtra)
+	setEnvString(&APIBaseUrl, "APIBASEURL", APIBaseUrlDefault)
+	log.Printf("Configure APIBASEURL to: %s\n", APIBaseUrl)
+	setEnvString(&VHost, "VHOST", vHostDefault)
+	log.Printf("Configure VHOST to: %s\n", VHost)
 }
 
 // Initialize the flags processor with default values and help messages.
@@ -132,6 +140,10 @@ func initFlags() {
 	flag.StringVar(&CfgSrc, "g", cfgSrcDefault, cfgSrcUsage+" (shorthand)")
 	flag.StringVar(&CfgSrcExtra, "cfgsrcextra", cfgSrcExtraDefault, cfgSrcExtraUsage)
 	flag.StringVar(&CfgSrcExtra, "e", cfgSrcExtraDefault, cfgSrcExtraUsage+" (shorthand)")
+	flag.StringVar(&APIBaseUrl, "APIBASEURL", APIBaseUrlDefault, APIBaseUrlUsage)
+	flag.StringVar(&APIBaseUrl, "a", APIBaseUrlDefault, APIBaseUrlUsage+" (shorthand)")
+	flag.StringVar(&VHost, "vhost", vHostDefault, vHostUsage)
+	flag.StringVar(&VHost, "v", vHostDefault, vHostUsage+" (shorthand)")
 }
 
 // Process application (command line) flags.
