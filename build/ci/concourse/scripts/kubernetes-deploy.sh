@@ -26,6 +26,38 @@ if [ $? -ne 0 ]; then
 fi
 chmod +x kubectl
 
+# install kubectl
+LATEST=${helm_ver}
+SHA="$(curl -s https://storage.googleapis.com/kubernetes-helm/helm-${LATEST}-linux-amd64.tar.gz.sha256)"
+if [ $? -ne 0 ]; then
+    echo "Failed to obtain helm checksum. Aborting!"
+    exit 1
+fi
+
+curl -LO https://storage.googleapis.com/kubernetes-helm/helm-${LATEST}-linux-amd64.tar.gz
+if [ $? -ne 0 ]; then
+    echo "Failed to download helm tarball. Aborting!"
+    exit 1
+fi
+
+which sha256 >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    dsha=$(sha256 helm-${LATEST}-linux-amd64.tar.gz)
+    if [ ! "{SHA}" == "${dsha}" ]; then
+        echo "Checksum for helm download is incorrect."
+        exit 1
+    fi
+fi
+tar xvzf helm-${LATEST}-linux-amd64.tar.gz
+mv linux-amd64/helm ${TOP}/
+mv linux-amd64/tiller ${TOP}/
+chmod +x ${TOP}/helm
+chmod +x ${TOP}/tiller
+
+# Expand the path to include k8s deploy tooling
+export PATH=${PATH}:${TOP}
+
+# get the tag for the docker container
 tag=$(cat version/version)
 
 # validate parameters
@@ -66,6 +98,10 @@ if [ -z "${admin_token}" ]; then
     echo "ERROR: admin_token not supplied. Aborting!"
     ret=1
 fi
+if [ -z "${helm_ver}" ]; then
+    echo "ERROR: helm version not supplied. Aborting!"
+    ret=1
+fi
 if [ -z "${tag}" ]; then
     echo "ERROR: tag (version) not supplied. Aborting!"
     ret=1
@@ -87,26 +123,24 @@ fi
 # list the directory now for debugging purposes
 ls -lat
 
-# build kubectl command line
-KUBECTL="./kubectl --server=${cluster_url} --namespace=$namespace --certificate-authority=ca.pem"
-if [ -z "$admin_token" -o "${admin_token}" == "MINIKUBE" ]; then
-    KUBECTL="${KUBECTL} --client-key=key.pem --client-certificate=cert.pem"
-else
-    KUBECTL="${KUBECTL} --token=${admin_token}"
-fi
+# setup kube config
+kubectl config set-cluster go-reminders --server=${cluster_url} --certificate-authority=${TOP}/ca.pem
 
-# run the correct commands
-${KUBECTL} get ${resource_type}/${resource_name} >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-    # Note: assume resource_name and the container name equate.
-    $KUBECTL set image ${resource_type}/${resource_name} ${resource_name}=${container}:${tag}
-else
-    # No deployment yet, start it.
-    $KUBECTL create -f kubernetes/deployment.yml
-fi
 
-${KUBECTL} get service/${resource_name} >/dev/null 2>&1
+# set kube user  
+kubectl config set-credentials go-reminders --client-key=${TOP}/key.pem --client-certificate=${TOP}/cert.pem
+
+# enable the context
+kubectl config set-context go-reminders --user=go-reminders --cluster=go-reminders
+kubectl config use-context go-reminders
+
+# check kubectl for validity
+kubectl get all --all-namespaces
 if [ $? -ne 0 ]; then
-    # No service yet, start it.
-    $KUBECTL create -f kubernetes/service.yml
+    echo "kubectl failed to connect to master."
+    exit 1
 fi
+
+cd kubernetes/helm
+helm delete go-reminders --purge >/dev/null 2>&1
+helm install --name go-reminders --values values-minikube.yml --debug .

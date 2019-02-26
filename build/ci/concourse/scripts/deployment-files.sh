@@ -35,6 +35,9 @@ echo "Replacement regexp provided: ${repl} from ${container}"
 sed -e "s/{{docker-registry-repo}}/${repl}/g" git-reminders-repo/deployments/kubernetes/deployment.yml >kubernetes/deployment.yml
 cp git-reminders-repo/deployments/kubernetes/service.yml kubernetes/service.yml
 
+# create the helm chart copy
+cp -a git-reminders-repo/deployments/helm kubernetes/
+
 # Check whats here
 echo "List out the output directory:"
 ls -laRt kubernetes

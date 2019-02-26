@@ -14,7 +14,8 @@ microservice:
 1. A kubernetes cluster sufficient to run go-reminders and its backing services (e.g., mysql);
 2. A Docker registry and relevant credentials for pushing and pulling containers;
 3. A backing service (generally mysql) running in the kubernetes cluster;
-4. A Pivotal Concourse setup in order to run the build and deploy processes.
+4. A Pivotal Concourse setup in order to run the build and deploy processes;
+5. [Helm](https://helm.sh) for managing go-reminders deployments, also used by the ci/cd pipelines.
 
 #### Kubernetes Cluster
 Running go-reminders generally targets a kubenernetes cluster. It runs in the
@@ -188,12 +189,41 @@ for example:
           value: "rootpasswd"
     ...
 
+###### Sample Kubernetes Deployment Using kubectl
 Sample deployment and service manifests are provided in the
 [kubernetes](deployments/kubernetes) directory.  Run those similarly to the
 following:
 
     kubectl create -f deployment.yml
     kubectl create -f service.yml
+
+###### Sample Kubernetes Deployment Using Helm
+The facility generally used to deploy and manage go-reminders is
+[Helm](https://helm.sh). If you are using the concourse pipelines to build
+and deploy, helm will be used automatically.
+
+If you want to deploy manually using helm, switch to the [deployments/helm]
+directory. There you will find the key files to fill out -- either of
+values-minikube.yml or values-pks.yml. Copy one of those files values.yml
+
+    cp values-minikube.yml values.yml
+
+and edit the values.yml file to match your deployment desires. The file
+values.yml is ignored by git, so will not be part of subequent commits unless
+forced (i.e., git will not track values.yml).
+
+To deploy using helm, issue a command such as:
+
+    cd .../deployments/helm
+    helm install --name go-reminders .
+
+and that should create the deployment, which you can check with
+
+    helm status go-reminders
+
+Helm is a powerful tool for kubernetes deployment management and a good read
+of [its documentation](https://helm.sh/docs/) is in order for those not yet
+familiar.
 
 ## Documentation
 The microservice provides two mechanisms for interacting with the service:
