@@ -21,8 +21,17 @@ script for this exists in [scripts/minikube.sh](../../../scripts/minikube.sh).
 
 ### Credential Pipeline Variables
 
-There are a number of variables that params.yml needs to specify that must be
-base64 encoded. These are:
+There are a number of pipeline variables that params.yml needs in order to
+complete pipeline runs. These include:
+
+- docker-registry-repo: the docker repo/container to use for push / pull
+- docker-registry-user: the docker registry login user
+- docker-registry-passwd: the docker registry login passwd
+- docker-registry-email: the docker registry login e-mail
+- helm_ver: the version of helm to install and use
+
+In addition, there are a number of variables that params.yml needs to specify
+that must be base64 encoded. These are:
 
 - k8s-cluster-url: something of the form https://192.168.64.55:8443
 - k8s-cluster-ca:  base64 encoded certificate authority for the target cluster
@@ -30,7 +39,7 @@ base64 encoded. These are:
 - k8s-admin-key:   base64 encoded user key for the target cluster
 - k8s-admin-token: base64 admin token, if any. If none, use "MINIKUBE"
 
-In order to help out a bit with those, a
+In order to help out a bit with the base64 encoding, a
 [script](examples/append-creds-to-params.sh) exists in the
 [examples](examples) directory that will attempt to form the appropriate
 values from your ~/.kube/config and append the variables with their values to

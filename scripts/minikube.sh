@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
 #
 
-if [ -f /doesnotexist ]; then
 # Get Access to Fusion command-line utils
 # export PATH=$PATH:"/Applications/VMware Fusion.app/Contents/Library"
 
@@ -24,15 +23,10 @@ echo "Initializing helm..."
 helm init
 sleep 5 # settling time
 
-fi
-
-# start a concourse engine
-echo "Starting concourse..."
-helm install --name reminders-concourse stable/concourse
-
 # Notify the user how to use the local concourse
-echo To use concourse locally, you will want to do the following:
+echo To use concourse locally, you will want to do something similar to the following:
 echo
+echo helm install --name reminders-concourse stable/concourse
 echo export CPOD=\$\(kubectl get pods --namespace default -l \"app=reminders-concourse-web\" -o jsonpath=\"\{.items\[0\].metadata.name\}\"\)
 echo kubectl port-forward --namespace default \$CPOD 8080:8080
 echo fly -t k8s-cluster login --team-name main --concourse-url http://127.0.0.1:8080 -u test -p test

@@ -116,3 +116,4 @@ jobs:
           admin_key: ((k8s-admin-key))
           admin_cert: ((k8s-admin-cert))
           admin_token: ((k8s-admin-token))
+          helm_ver: ((helm_ver))
