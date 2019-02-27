@@ -43,7 +43,7 @@ In order to help out a bit with the base64 encoding, a
 [script](examples/append-creds-to-params.sh) exists in the
 [examples](examples) directory that will attempt to form the appropriate
 values from your ~/.kube/config and append the variables with their values to
-the file "params.yml". The script may need modiications to set its internal
+the file "params.yml". The script may need modifications to set its internal
 variables, which are documented directly within.
 
 Once a kubernetes cluster is up and running, copy and edit the
