@@ -120,9 +120,10 @@ To build for mac use the following.  Examples elsewhere in this document should 
     make cmd/go-reminders/go-reminders-darwin
 
 #### CI/CD Pipelines
-The code includes various pipeines in the [build/ci](build/ci) directory. They can by used
-assuming the appropriate tool (i.e., Jenkins, Concourse or the like) is in
-place. Some alteration to the configuration may be necessary depending on your setup.
+The code includes various pipeines in the [build/ci](build/ci) directory. They
+can be used assuming the appropriate tool (i.e., Jenkins, Concourse or the
+like) is in place. Some alteration to the configuration may be necessary
+depending on your setup.
 
 ##### Notes on Using Concourse
 A set of pipelines and sample parameter files are provided in the
@@ -199,16 +200,17 @@ following:
 
 ###### Sample Kubernetes Deployment Using Helm
 The facility generally used to deploy and manage go-reminders is
-[Helm](https://helm.sh). If you are using the concourse pipelines to build
-and deploy, helm will be used automatically.
+[Helm](https://helm.sh). If you are using the concourse pipelines to build and
+deploy, helm will be used automatically.
 
-If you want to deploy manually using helm, switch to the [deployments/helm]
-directory. There you will find the key files to fill out -- either of
-values-minikube.yml or values-pks.yml. Copy one of those files values.yml
+If you want to deploy manually using helm, switch to the
+[deployments/helm](deployment/helm] directory. There you will find the key
+files to fill out -- either of values-minikube.yml or values-pks.yml. Copy one
+of those files values.yml
 
     cp values-minikube.yml values.yml
 
-and edit the values.yml file to match your deployment desires. The file
+and edit the values.yml file to match your deployment requirements. The file
 values.yml is ignored by git, so will not be part of subequent commits unless
 forced (i.e., git will not track values.yml).
 
