@@ -20,17 +20,23 @@
 #
 DEBUG=1
 
+# From where this script is executing
+RUNDIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
 # Set this to anything hat follows variables like "certificate-authority"
 # For instance many time the kube config will use "certificate-authority-data".
-# Minikube, just leaves no such postfix.
+# Minikube leaves no such postfix.
 #CDATAPOSTFIX="-data"
-CDATAPOSTFIX=""
+CDATAPOSTFIX=${CDATAPOSTFIX:=""}
 
 # Set this to the name of the user you want to perform k8s deployments.
-export K8SUSER="minikube"
+K8SUSER="${K8SUSER:=minikube}"
 
 # Set this to the cluster into which you want to deploy.
-export K8SCLUSTER="minikube"
+K8SCLUSTER="${K8SCLUSTER:=minikube}"
+
+# set the configuration file to draw on for credentials
+KUBECONFIG="${KUBECONFIG:=~/.kube/config}"
 
 if [ -z "$(which jq)" ]; then
     echo "ERROR: jq must be available on the PATH, but is not."
@@ -52,19 +58,25 @@ case "${OS}" in
 esac
 
 echo get cert data...
-CADATA=$(cat ~/.kube/config | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".clusters[] | select(.name==\"${K8SCLUSTER}\")" | jq -r ".cluster[\"certificate-authority${CDATAPOSTFIX}\"]")
-CCDATA=$(cat ~/.kube/config | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-certificate${CDATAPOSTFIX}\"]")
-CKDATA=$(cat ~/.kube/config | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-key${CDATAPOSTFIX}\"]")
+CADATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".clusters[] | select(.name==\"${K8SCLUSTER}\")" | jq -r ".cluster[\"certificate-authority${CDATAPOSTFIX}\"]")
+CCDATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-certificate${CDATAPOSTFIX}\"]")
+CKDATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-key${CDATAPOSTFIX}\"]")
 
 echo get token...
 if [ "${K8SCLUSTER}" == "minikube" ]; then
     TOKEN=MINIKUBE
 else
-    TOKEN=$(cat ~/.kube/config | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"$K8SUSER\")" | jq -r '.user["token"]')
+    TOKEN=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"$K8SUSER\")" | jq -r '.user["token"]')
 fi
 
 echo get k8s host...
-K8SHOST=$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"${K8SCLUSTER}\")].cluster.server}")
+if [ -z "${K8SHOST}" ]; then
+	K8SHOST=$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"${K8SCLUSTER}\")].cluster.server}")
+fi
+
+# cleanup old certs
+awk -f ${RUNDIR}/killcerts.awk params.yml >newparams.yml
+mv newparams.yml params.yml
 
 # Append all the things to params.yml
 echo "#### Added by ${0}. Delete this line and below to rerun the script." >>params.yml
@@ -114,4 +126,10 @@ else
     echo -n "k8s-admin-token: " >>params.yml
     echo -n ${TOKEN} >>params.yml
     echo >>params.yml
+fi
+
+# Finally: replace bogus tokens
+sed -i -e 's/k8s-admin-token: null/k8s-admin-token: MINIKUBE/g' params.yml
+if [ -n "${K8SHOSTCNAME}" ]; then
+	sed -i -e "s/127.0.0.1/${K8SHOSTCNAME}/g" params.yml
 fi

@@ -91,31 +91,32 @@ help out.
 #### Get the Code
 To get the code, get it similarly to the following:
 
-    git clone https://github.com/vmwaresamples/go-reminders
+    git clone https://github.com/vmware/go-reminders
     cd go-reminders
     git submodule init
     git submodule update --recursive
 
 #### Build the Code
 The project includes a Makefile for use in building the go-reminders
-microservice. To build a docker container,
-you must provide a container name for pushing to a registry.
+microservice. To build a Docker container, you must provide a container name
+for pushing to a registry.
 
     export CONTAINER=myreponame/go-reminders
     make
 
-That will build and push the container assuming you have already logged
+That will build and push the container image assuming you have already logged
 in to your registry with "docker login". If you are using
-[concourse](https://concourse-ci.org) to perform your builds, you can issue
-the makefile as follows to preclude pushing the docker container, instead
+[concourse](https://concourse-ci.org) to perform your builds, you can issue the
+makefile as follows to preclude immediately pushing the Docker image, instead
 using the concourse resource to perform that task:
 
-    export CONTAINER=myreponame/go-reminders 
+    export CONTAINER=myreponame/go-reminders:version-tag
     make cmd/go-reminders/go-reminders
 
 The output of the concourse task would be the go-reminders executable.
 
-To build for mac use the following.  Examples elsewhere in this document should switch to referencing `go-reminders-darwin` instead of `go-reminders`
+To build for mac use the following.  Examples elsewhere in this document should
+switch to referencing `go-reminders-darwin` instead of `go-reminders`
 
     make cmd/go-reminders/go-reminders-darwin
 
@@ -195,8 +196,19 @@ Sample deployment and service manifests are provided in the
 [kubernetes](deployments/kubernetes) directory.  Run those similarly to the
 following:
 
-    kubectl create -f deployment.yml
-    kubectl create -f service.yml
+```
+cd deployments/kubernetes
+cat >kustomization.yaml <<EOF
+  resources:
+  - service.yml
+  - deployment.yml
+  images:
+  - name: docker-registry-repo
+    newTag: 1.0.0
+    newName: concourse.corp.local/go-reminders
+EOF
+kubectl kustomize . | kubectl apply -f -
+```
 
 ###### Sample Kubernetes Deployment Using Helm
 The facility generally used to deploy and manage go-reminders is

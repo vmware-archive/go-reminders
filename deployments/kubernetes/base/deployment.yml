@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: go-reminders
-          image: {{docker-registry-repo}}
+          image: docker-registry-repo
           command:
             - "/go-reminders"
             - "-dbtype=mem"

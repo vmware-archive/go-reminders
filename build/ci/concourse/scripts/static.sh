@@ -27,5 +27,11 @@ if [ $(cat ${TOP}/go-error-files/gofmt.lst | wc -l) -ne 0 ]; then
     exit 1
 fi
 
-# Test the code
+# Test the festure code
 CONTAINER=nomatter make test
+
+# check the ci pipeline scripts
+cd build/ci/concourse/scripts
+for s in *; do
+	bash -n $s
+done

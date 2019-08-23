@@ -47,15 +47,16 @@ the file "params.yml". The script may need modifications to set its internal
 variables, which are documented directly within.
 
 Once a kubernetes cluster is up and running, copy and edit the
-[examples/params-minikube.yml](examples/params-minikube.yml) file to
-params.yml:
+[examples/params-minikube.yml](examples/params-minikube.yml) file
+params.yml, for example:
 
     cp examples/params-minikube.yml params.yml
+    vi params.yml
 
 That should be ignored by git to help prevent potential
 commits of your changes. Then run:
 
-    ./00_set-pipeline-minikube.sh
+    ./00_set-pipeline.sh
 
 ### PKS
     TODO
