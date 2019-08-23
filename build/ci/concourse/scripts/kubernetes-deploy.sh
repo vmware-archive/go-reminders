@@ -95,10 +95,15 @@ if [ -z "${admin_cert}" ]; then
     ret=1
 fi
 if [ -z "${admin_token}" ]; then
-    echo "ERROR: admin_token not supplied. Aborting!"
+    echo "WARN: admin_token not supplied. Using Certs Only!"
     ret=1
 fi
 if [ -z "${helm_ver}" ]; then
+    echo "ERROR: helm version not supplied. Aborting!"
+    ret=1
+fi
+if [ -z "${deployenv}" ]; then
+
     echo "ERROR: helm version not supplied. Aborting!"
     ret=1
 fi
@@ -114,7 +119,7 @@ echo "build credentials"
 
 echo "$cluster_ca" | base64 -d > ca.pem
 
-# if using a bearer token or using minikube, admin keys are useless
+# if using a bearer token or using minikube (or kind), admin keys are useless
 if [ -z "$admin_token" -o "${admin_token}" == "MINIKUBE" ]; then
     echo "$admin_key" | base64 -d > key.pem
     echo "$admin_cert" | base64 -d > cert.pem
@@ -141,6 +146,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cd kubernetes/helm
-helm delete go-reminders --purge >/dev/null 2>&1
-helm install --name go-reminders --values values-minikube.yml --debug .
+# Kustomize the manifestst and deploy
+kubectl kustomize kubernetes/overlays/${deployenv} | kubectl -n ${namespace} apply -f -

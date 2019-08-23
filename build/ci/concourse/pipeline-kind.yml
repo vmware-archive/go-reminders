@@ -5,15 +5,14 @@
 #
 # SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
 #
+# Note: This pipline assumes a private unsecured doker registry!
+#
 
 resource_types:
   - name: kubernetes
     type: docker-image
     source:
       repository: ((docker-registry-repo))
-      username: ((docker-registry-user))
-      password: ((docker-registry-passwd))
-      email: ((docker-registry-email))
 
 resources:
   - name: version
@@ -35,9 +34,8 @@ resources:
   - name: docker-go-reminders-image
     type: docker-image
     source:
-     repository: ((docker-registry-repo))
-     username: ((docker-registry-user))
-     password: ((docker-registry-passwd))
+      repository: ((docker-registry-repo))
+      insecure_registries: [ "concourse.corp.local" ]
 
 jobs:
   - name: submodules
@@ -108,7 +106,7 @@ jobs:
         file: git-reminders-repo/build/ci/concourse/tasks/kubernetes-deploy.yml
         params:
           cluster_url: ((k8s-cluster-url))
-          namespace: default
+          namespace: ((k8s-namespace))
           resource_type: deployment
           resource_name: go-reminders
           container: ((docker-registry-repo))

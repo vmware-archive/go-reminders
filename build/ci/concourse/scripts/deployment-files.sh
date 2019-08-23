@@ -30,15 +30,30 @@ tag="$(cat version/version)"
 mkdir -p ${TOP}/kubernetes
 
 # create the kubernetes deployment and service manifests
-repl="${container//\//\\/}:${tag}"
-echo "Replacement regexp provided: ${repl} from ${container}"
-sed -e "s/{{docker-registry-repo}}/${repl}/g" git-reminders-repo/deployments/kubernetes/deployment.yml >kubernetes/deployment.yml
-cp git-reminders-repo/deployments/kubernetes/service.yml kubernetes/service.yml
+cp -a git-reminders-repo/deployments/kubernetes/base kubernetes/
+cp -a git-reminders-repo/deployments/kubernetes/overlays kubernetes/
+cat >kubernetes/base/kustomization.yaml <<EOF
+  resources:
+  - service.yml
+  - deployment.yml
+  images:
+  - name: docker-registry-repo
+    newTag: ${tag}
+    newName: ${container}
+EOF
 
-# create the helm chart copy
+# create the helm chart copy and fixup a values file
 cp -a git-reminders-repo/deployments/helm kubernetes/
+cd kubernetes/helm
+
+# fixup the values file
+cp values-minikube.yml values.yml
+repl="${container//\//\\/}"
+sed -i -e "s/repository: tdhite\/go-reminders/repository: ${repl}/g" values.yml
+sed -i -e "s/tag: latest/tag: ${tag}/g" values.yml
 
 # Check whats here
+cd "${TOP}"
 echo "List out the output directory:"
 ls -laRt kubernetes
 echo ""

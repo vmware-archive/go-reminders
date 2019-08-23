@@ -15,8 +15,10 @@ semver-git-repo-branch: master
 semver-file: "go-reminders"
 go-reminders-git-repo: "git@github.com/mygithubid/go-reminders"
 go-reminders-git-repo-branch: "master"
+helm_ver: "v2.14.3"
+k8s-namespace: "reminders"
 
 private-git-repo-key: |
   -----BEGIN RSA PRIVATE KEY-----
-  all your private kee data here
+  all your private key data here
   -----END RSA PRIVATE KEY-----

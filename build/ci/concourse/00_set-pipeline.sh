@@ -6,10 +6,14 @@
 # SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
 #
 
-PARAMS="params.yml"
-PIPELINE="pipeline-minikube.yml"
+set -x
 
-fly -t k8s-cluster set-pipeline --pipeline=go-reminders --load-vars-from="${PARAMS}" --config="${PIPELINE}"
+FLYTARGET=${FLYTARGET:=k8s-cluster}
+
+PARAMS="params.yml"
+PIPELINE="${PIPELINE:=pipeline-minikube.yml}"
+
+fly -t ${FLYTARGET} set-pipeline --pipeline=go-reminders --load-vars-from="${PARAMS}" --config="${PIPELINE}"
 
 #if [ $? -eq 0 ]; then
 #	fly -t k8s-cluster unpause-pipeline --pipeline go-reminders
