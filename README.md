@@ -216,7 +216,7 @@ The facility generally used to deploy and manage go-reminders is
 deploy, helm will be used automatically.
 
 If you want to deploy manually using helm, switch to the
-[deployments/helm](deployment/helm] directory. There you will find the key
+[deployments/helm](deployments/helm) directory. There you will find the key
 files to fill out -- either of values-minikube.yml or values-pks.yml. Copy one
 of those files values.yml
 
