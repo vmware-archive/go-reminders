@@ -1,0 +1,19 @@
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
+#
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: go-reminders
+spec:
+  template:
+    spec:
+      containers:
+        - name: go-reminders
+          env:
+          - name: VHOST
+            value: concourse.corp.local:8000

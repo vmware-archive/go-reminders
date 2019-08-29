@@ -11,51 +11,27 @@ set -x
 
 # Save current directory
 TOP="$(pwd)"
+echo "PATH: ${PATH}"
+export PATH=${PATH:/usr/local/bin}
 
 # install kubectl
-LATEST="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+EXE=$(which kubectl)
 if [ $? -ne 0 ]; then
-    echo "Failed to obtain latest kubectl release. Aborting!"
-    exit 1
-fi
-
-curl -LO https://storage.googleapis.com/kubernetes-release/release/${LATEST}/bin/linux/amd64/kubectl
-if [ $? -ne 0 ]; then
-    echo "Failed to download kubectl. Aborting!"
-    exit 1
-fi
-chmod +x kubectl
-
-# install kubectl
-LATEST=${helm_ver}
-SHA="$(curl -s https://storage.googleapis.com/kubernetes-helm/helm-${LATEST}-linux-amd64.tar.gz.sha256)"
-if [ $? -ne 0 ]; then
-    echo "Failed to obtain helm checksum. Aborting!"
-    exit 1
-fi
-
-curl -LO https://storage.googleapis.com/kubernetes-helm/helm-${LATEST}-linux-amd64.tar.gz
-if [ $? -ne 0 ]; then
-    echo "Failed to download helm tarball. Aborting!"
-    exit 1
-fi
-
-which sha256 >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-    dsha=$(sha256 helm-${LATEST}-linux-amd64.tar.gz)
-    if [ ! "{SHA}" == "${dsha}" ]; then
-        echo "Checksum for helm download is incorrect."
+    LATEST="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+    if [ $? -ne 0 ]; then
+        echo "Failed to obtain latest kubectl release. Aborting!"
         exit 1
     fi
-fi
-tar xvzf helm-${LATEST}-linux-amd64.tar.gz
-mv linux-amd64/helm ${TOP}/
-mv linux-amd64/tiller ${TOP}/
-chmod +x ${TOP}/helm
-chmod +x ${TOP}/tiller
 
-# Expand the path to include k8s deploy tooling
-export PATH=${PATH}:${TOP}
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/${LATEST}/bin/linux/amd64/kubectl
+    if [ $? -ne 0 ]; then
+        echo "Failed to download kubectl. Aborting!"
+        exit 1
+    fi
+    chmod +x kubectl
+else
+    export PATH=${PATH}:${TOP}
+fi
 
 # get the tag for the docker container
 tag=$(cat version/version)

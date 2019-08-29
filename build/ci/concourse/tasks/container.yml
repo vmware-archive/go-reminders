@@ -11,8 +11,12 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: golang
-    tag: 1.11.5
+    repository: ((taskimage))
+    tag: ((taskimagetag))
+    ca_certs:
+    - domain: ((task_cn))
+      cert: |
+        ((task_ca))
 
 inputs:
   - name: git-reminders-repo

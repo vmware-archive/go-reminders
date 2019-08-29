@@ -2,6 +2,8 @@
 *.a
 *.so
 *.swp
+linux-amd64
+kubectl
 
 deployments/kubernetes/base/kustomization.yaml
 cmd/go-reminders/go-reminders-darwin

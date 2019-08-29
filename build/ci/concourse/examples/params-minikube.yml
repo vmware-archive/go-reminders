@@ -17,8 +17,31 @@ go-reminders-git-repo: "git@github.com/mygithubid/go-reminders"
 go-reminders-git-repo-branch: "master"
 helm_ver: "v2.14.3"
 k8s-namespace: "reminders"
-
+deployenv: "dev"
+# The next two params are the image to use for Concourse
+# tasks, i.e., the image_resource container image.
+taskimage: "concourse.corp.local/reminders-build"
+taskimagetag: "1.0.0"
+# This is a .ssh private key used for accessing the
+# various git repos (go-reminders and semvers)
 private-git-repo-key: |
   -----BEGIN RSA PRIVATE KEY-----
   all your private key data here
   -----END RSA PRIVATE KEY-----
+# This is the CA for use by Docker when
+# pulling Docker images, such as from local,
+# private registries that are using locally
+# generated PKI certs.
+task_cn: concourse.corp.local
+taskcert: |
+  -----BEGIN CERTIFICATE-----
+  put any certificate authorities (ca.crt)
+  Concourse would not know such as those
+  created with easy-rsa for use with local,
+  private Docker registries.
+  -----END CERTIFICATE-----
+
+# This is the end of hand-tuned variables. After setting up those above,
+# run examples/append-creds-to-params.sh, which will append kubernetes
+# auth variables the pipeline tasks need.
+

@@ -35,9 +35,9 @@ resources:
   - name: docker-go-reminders-image
     type: docker-image
     source:
-     repository: ((docker-registry-repo))
-     username: ((docker-registry-user))
-     password: ((docker-registry-passwd))
+      repository: ((docker-registry-repo))
+      username: ((docker-registry-user))
+      password: ((docker-registry-passwd))
 
 jobs:
   - name: submodules
@@ -46,6 +46,11 @@ jobs:
         trigger: true
       - task: submodules
         file: git-reminders-repo/build/ci/concourse/tasks/submodules.yml
+        vars:
+          taskimage: ((taskimage))
+          taskimagetag: ((taskimagetag))
+          task_cn: ((task_cn))
+          task_ca: ((task_ca))
 
   - name: static-tests
     plan:
@@ -54,6 +59,11 @@ jobs:
         trigger: true
       - task: static-tests
         file: git-reminders-repo/build/ci/concourse/tasks/static.yml
+        vars:
+          taskimage: ((taskimage))
+          taskimagetag: ((taskimagetag))
+          task_cn: ((task_cn))
+          task_ca: ((task_ca))
 
   - name: increment-version
     serial_groups:
@@ -78,10 +88,20 @@ jobs:
         trigger: true
       - task: task-build
         file: git-reminders-repo/build/ci/concourse/tasks/build.yml
+        vars:
+          taskimage: ((taskimage))
+          taskimagetag: ((taskimagetag))
+          task_cn: ((task_cn))
+          task_ca: ((task_ca))
       - get: version
         passed: [increment-version]
       - task: container
         file: git-reminders-repo/build/ci/concourse/tasks/container.yml
+        vars:
+          taskimage: ((taskimage))
+          taskimagetag: ((taskimagetag))
+          task_cn: ((task_cn))
+          task_ca: ((task_ca))
       - put: docker-go-reminders-image
         params:
           build: container
@@ -104,11 +124,16 @@ jobs:
         file: git-reminders-repo/build/ci/concourse/tasks/deployment-files.yml
         params:
           container: ((docker-registry-repo))
+        vars:
+          taskimage: ((taskimage))
+          taskimagetag: ((taskimagetag))
+          task_cn: ((task_cn))
+          task_ca: ((task_ca))
       - task: kubernetes-deploy
         file: git-reminders-repo/build/ci/concourse/tasks/kubernetes-deploy.yml
         params:
           cluster_url: ((k8s-cluster-url))
-          namespace: default
+          namespace: ((k8s-namespace))
           resource_type: deployment
           resource_name: go-reminders
           container: ((docker-registry-repo))
@@ -118,3 +143,8 @@ jobs:
           admin_token: ((k8s-admin-token))
           helm_ver: ((helm_ver))
           deployenv: ((deployenv))
+        vars:
+          taskimage: ((taskimage))
+          taskimagetag: ((taskimagetag))
+          task_cn: ((task_cn))
+          task_ca: ((task_ca))

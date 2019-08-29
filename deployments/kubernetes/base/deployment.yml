@@ -23,12 +23,16 @@ spec:
       containers:
         - name: go-reminders
           image: docker-registry-repo
-          command:
-            - "/go-reminders"
-            - "-dbtype=mem"
+          env:
+          - name: DBTYPE
+            value: mem
+          - name: VHOST
+            value: go-reminders.corp.local
           ports:
             - containerPort: 8080
               name: go-reminders
               protocol: TCP
+          command:
+            - "/go-reminders"
       imagePullSecrets:
         - name: go-reminders-registry-creds

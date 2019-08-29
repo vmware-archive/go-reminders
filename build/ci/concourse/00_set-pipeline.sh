@@ -10,7 +10,7 @@ set -x
 
 FLYTARGET=${FLYTARGET:=k8s-cluster}
 
-PARAMS="params.yml"
+PARAMS="${PARAMS:=params.yml}"
 PIPELINE="${PIPELINE:=pipeline-minikube.yml}"
 
 fly -t ${FLYTARGET} set-pipeline --pipeline=go-reminders --load-vars-from="${PARAMS}" --config="${PIPELINE}"
