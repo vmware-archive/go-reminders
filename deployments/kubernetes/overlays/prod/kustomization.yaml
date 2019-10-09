@@ -4,3 +4,4 @@ resources:
 - ingress.yml
 patches:
 - service.yaml
+- deployment.yaml

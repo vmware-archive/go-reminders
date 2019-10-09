@@ -11,9 +11,9 @@ environment. Details are [further below](#build-and-run).
 There are some basic requirements in order build and use the go-reminders
 microservice:
 
-1. A kubernetes cluster sufficient to run go-reminders and its backing services (e.g., mysql);
+1. A Kubernetes cluster sufficient to run go-reminders and its backing services (e.g., mysql);
 2. A Docker registry and relevant credentials for pushing and pulling containers;
-3. A backing service (generally mysql) running in the kubernetes cluster;
+3. A backing service (generally mysql) running in the Kubernetes cluster;
 4. A Pivotal Concourse setup in order to run the build and deploy processes;
 5. [Helm](https://helm.sh) for managing go-reminders deployments, also used by the ci/cd pipelines.
 
@@ -21,7 +21,7 @@ microservice:
 Running go-reminders generally targets a kubenernetes cluster. It runs in the
 default namespace.
 
-In addition, as with any kubernetes cluster, credentials should be setup.
+In addition, as with any Kubernetes cluster, credentials should be setup.
 Secrets for pushing and pulling containers from the Docker registry must exist
 before building the microservice. The way to add such credentials is as
 follows:
@@ -34,7 +34,7 @@ such as described [below](#obtaining-backing-storage-secrets). Another way is
 to use the [concourse credential
 management](https://concourse-ci.org/creds.html) facility if you want a more
 secure model. To do so, integrate your service of choice and set the
-environment variables or command line switches in the kubernetes deployment
+environment variables or command line switches in the Kubernetes deployment
 for running go-reminders.
 
 #### Backing Service
@@ -55,7 +55,7 @@ similarly to the following:
 
 ```DBTYPE=mem ./cmd/go-reminders/go-reminders```
 
-or use a similar environment setting in a kubernetes deployment.
+or use a similar environment setting in a Kubernetes deployment.
 
 ##### Obtaining Backing Storage Secrets
 It is possible to obtain MySQL secrets from a VMware vRealize Orchestrator
@@ -141,7 +141,7 @@ stack.
 
 #### Run
 The microservice will run standalone, in a container, or more often via
-kubernetes deployments. Whether by command line for testing or via kubernetes
+Kubernetes deployments. Whether by command line for testing or via Kubernetes
 deployment, there are a number of options available to configure its
 operations. All options are available via the command line or environment,
 with the environment taking higher priority to lean a bit more towards
@@ -174,7 +174,7 @@ Once pushed to Docker, you can run the microservice similarly to:
 	docker run -p 8080:8080 -E DBTYPE=mem myregistryrepo/go-reminders
 
 ##### In Kubernetes
-In a kubernetes environment, the command is part of the deployment manifest,
+In a Kubernetes environment, the command is part of the deployment manifest,
 for example:
 
     ...
@@ -191,23 +191,46 @@ for example:
           value: "rootpasswd"
     ...
 
-###### Sample Kubernetes Deployment Using kubectl
-Sample deployment and service manifests are provided in the
-[kubernetes](deployments/kubernetes) directory.  Run those similarly to the
-following:
+###### Sample Kubernetes Deployment Using Kustomize
+Sample Kubernetes manifests based on the use of
+[Kustomize](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/)
+are provided in the [deployment/kubernetes](deployments/kubernetes) directory.
+Prior to running kustomize, you will want to first create the go-reminders
+Kubernetes secrets if you are using DBTYPE=mysql.
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: go-reminders-secrets
+type: Opaque
+data:
+  admin: {{base64 encoded admin user name}}
+  password: {{base64 encoded admin password}}
+  host: {{base64 encoded database IP address or DNS name}}
+  port: {{base64 encoded database port}}
+```
+
+You will also want to set the container repository and version tag. For an
+example of doing that, take a look at the Concourse [task that replaces the
+container
+image](https://github.com/vmware/go-reminders/blob/master/build/ci/concourse/scripts/deployment-files.sh#L32-L43).
+
+For  example, to Kustomize and apply the manifests, you might issue commands
+similar to the following to start go-reminders in a 'dev' environment:
 
 ```
 cd deployments/kubernetes
-cat >kustomization.yaml <<EOF
+cat >kubernetes/base/kustomization.yaml <<EOF
   resources:
   - service.yml
   - deployment.yml
   images:
   - name: docker-registry-repo
-    newTag: 1.0.0
+    newTag: 1.0.12
     newName: concourse.corp.local/go-reminders
 EOF
-kubectl kustomize . | kubectl apply -f -
+kubectl kustomize overlays/dev | kubectl apply -f -
 ```
 
 ###### Sample Kubernetes Deployment Using Helm
@@ -235,7 +258,7 @@ and that should create the deployment, which you can check with
 
     helm status go-reminders
 
-Helm is a powerful tool for kubernetes deployment management and a good read
+Helm is a powerful tool for Kubernetes deployment management and a good read
 of [its documentation](https://helm.sh/docs/) is in order for those not yet
 familiar.
 

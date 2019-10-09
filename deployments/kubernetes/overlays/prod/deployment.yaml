@@ -1,0 +1,45 @@
+#
+# Copyright 2015-2019 VMware, Inc. All Rights Reserved.
+# Author: Tom Hite (thite@vmware.com)
+#
+# SPDX-License-Identifier: https://spdx.org/licenses/MIT.html
+#
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: go-reminders
+spec:
+  template:
+    metadata:
+      labels:
+        app: go-reminders
+    spec:
+      containers:
+        - name: go-reminders
+          image: docker-registry-repo
+          env:
+          - name: DBTYPE
+            value: mysql
+          - name: PORT
+            valueFrom:
+              secretKeyRef:
+                name: go-reminders-secrets
+                key: port
+          - name: HOST
+            valueFrom:
+              secretKeyRef:
+                name: go-reminders-secrets
+                key: host
+          - name: ADMIN
+            valueFrom:
+              secretKeyRef:
+                name: go-reminders-secrets
+                key: admin
+          - name: PASSWD
+            valueFrom:
+              secretKeyRef:
+                name: go-reminders-secrets
+                key: passwd
+          - name: VHOST
+            value: go-reminders.corp.local
