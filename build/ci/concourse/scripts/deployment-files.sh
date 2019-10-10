@@ -34,8 +34,8 @@ cp -a git-reminders-repo/deployments/kubernetes/base kubernetes/
 cp -a git-reminders-repo/deployments/kubernetes/overlays kubernetes/
 cat >kubernetes/base/kustomization.yaml <<EOF
   resources:
-  - service.yml
-  - deployment.yml
+  - service.yaml
+  - deployment.yaml
   images:
   - name: docker-registry-repo
     newTag: ${tag}
