@@ -1,0 +1,10 @@
+apiVersion: skaffold/v1beta14
+kind: Config
+build:
+  artifacts:
+  - image: docker-registry-repo
+    context: build/docker
+  local: {}
+deploy:
+  kustomize:
+    path: deployments/kubernetes/overlays/dev
