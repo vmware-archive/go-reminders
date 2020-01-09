@@ -11,10 +11,14 @@ FROM scratch
 MAINTAINER Tom Hite <thite@vmware.com>
 
 # Add the microservice
-ADD go-reminders /go-reminders
+COPY --chown=65534:65534 go-reminders /go-reminders
 
-# Add the content (html and templates)
+# Add etc files and the content (html and templates)
 ADD html /html
+ADD etc /etc
+
+# Run non-root
+USER 65534
 
 EXPOSE 8080
 
