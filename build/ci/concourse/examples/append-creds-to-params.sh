@@ -58,15 +58,15 @@ case "${OS}" in
 esac
 
 echo get cert data...
-CADATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".clusters[] | select(.name==\"${K8SCLUSTER}\")" | jq -r ".cluster[\"certificate-authority${CDATAPOSTFIX}\"]")
-CCDATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-certificate${CDATAPOSTFIX}\"]")
-CKDATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-key${CDATAPOSTFIX}\"]")
+CADATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' | jq ".clusters[] | select(.name==\"${K8SCLUSTER}\")" | jq -r ".cluster[\"certificate-authority${CDATAPOSTFIX}\"]")
+CCDATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-certificate${CDATAPOSTFIX}\"]")
+CKDATA=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"${K8SUSER}\")" | jq -r ".user[\"client-key${CDATAPOSTFIX}\"]")
 
 echo get token...
 if [ "${K8SCLUSTER}" == "minikube" ]; then
     TOKEN=MINIKUBE
 else
-    TOKEN=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"$K8SUSER\")" | jq -r '.user["token"]')
+    TOKEN=$(cat ${KUBECONFIG} | python -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' | jq ".users[] | select(.name==\"$K8SUSER\")" | jq -r '.user["token"]')
 fi
 
 echo get k8s host...
