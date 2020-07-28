@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:ui/app/navigation.dart';
 import 'package:ui/app/settings.dart';
 import 'package:ui/reminders/list.dart';
 import 'package:ui/reminders/edit.dart';
+import 'package:ui/reminders/requests.dart';
 
 class HomePage extends StatelessWidget {
   final String title;
@@ -11,9 +11,30 @@ class HomePage extends StatelessWidget {
 
   HomePage(this.title, {Key key}) : super(key: key);
 
+  void _onShowMessage(BuildContext ctx, String msg) {
+    //Scaffold.of(ctx).showSnackBar(SnackBar(content: Text(msg)));
+    print(msg);
+  }
+
+  void _onSaved(BuildContext ctx, TupleReminder t) {
+    print('HomePage: popping ReminderEditor.');
+    //_onShowMessage(ctx, 'Saved new reminder: ${t.reminder[fieldGuid]}.');
+    Navigator.of(ctx).pop(t);
+  }
+
   void _onAdd(BuildContext ctx) {
     Map<String, dynamic> reminder = Map<String, dynamic>();
-    globalNavigator.push(ReminderEditor(reminder: reminder)).then((data) {
+    Navigator.of(ctx)
+        .push(MaterialPageRoute(
+            builder: (innerCtx) => ReminderEditor(
+                reminder: reminder,
+                onShowMessage: (String msg) {
+                  _onShowMessage(innerCtx, msg);
+                },
+                onSaved: (TupleReminder t) {
+                  _onSaved(innerCtx, t);
+                })))
+        .then((data) {
       onRefresh();
     }).catchError((error) {
       print('Caught error in _onAdd');
@@ -21,7 +42,10 @@ class HomePage extends StatelessWidget {
   }
 
   void _onSettings(BuildContext ctx) {
-    globalNavigator.push(Settings());
+    Navigator.of(ctx).push(MaterialPageRoute(
+        builder: (context) => Settings(onSaved: (b) {
+              Navigator.of(ctx).pop(b);
+            })));
   }
 
   void onRefresh() {
@@ -57,6 +81,11 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-        body: ReminderQuery(key: _keyReminderQuery));
+        body: Builder(
+            builder: (BuildContext innerCtx) => ReminderQuery(
+                key: _keyReminderQuery,
+                onShowMessage: (String msg) {
+                  _onShowMessage(innerCtx, msg);
+                })));
   }
 }

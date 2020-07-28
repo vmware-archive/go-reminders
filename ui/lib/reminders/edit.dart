@@ -1,21 +1,22 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-import 'package:ui/app/navigation.dart';
 import 'package:ui/reminders/requests.dart';
 
 class _SaveReminder extends StatefulWidget {
   final Map<String, dynamic> _reminder;
+  final Function(String) onShowMessage;
+  final Function(TupleReminder t) onSaved;
 
-  _SaveReminder(this._reminder, {Key key}) : super(key: key);
+  _SaveReminder(this._reminder,
+      {@required this.onShowMessage, @required this.onSaved, Key key})
+      : super(key: key);
 
   @override
   _SaveReminderState createState() => _SaveReminderState();
 }
 
 class _SaveReminderState extends State<_SaveReminder> {
-  String _msg;
-
   Future<TupleReminder> _updateServer() async {
     TupleReminder t;
 
@@ -34,16 +35,20 @@ class _SaveReminderState extends State<_SaveReminder> {
   }
 
   handleTuple(TupleReminder t) {
+    String msg;
     if (t.httpStatus != HttpStatus.ok) {
-      _msg = 'Save error: ${t.reminder[fieldMessage]}';
+      msg = 'Save error: ${t.reminder[fieldMessage]}';
     } else {
       String uuid = widget._reminder[fieldGuid];
-      _msg = 'Saved Reminder $uuid';
+      msg = 'Saved Reminder $uuid';
     }
-    print(_msg);
+    print(msg);
 
-    globalNavigator.pop(t);
-    globalNavigator.showSnackBar(_msg);
+    print('_SaveReminder:handleTuple: calling widget.onShowMessage.');
+    widget.onShowMessage(msg);
+
+    print('_SaveReminder:handleTuple: calling widget.onSaved.');
+    widget.onSaved(t);
   }
 
   @override
@@ -52,7 +57,8 @@ class _SaveReminderState extends State<_SaveReminder> {
 
     _updateServer().then(handleTuple).catchError((error) {
       setState(() {
-        _msg = 'Save error: ${error.toString()}';
+        print('_SaveReminder:initState: calling widget.onShowMessage.');
+        widget.onShowMessage('Save error: ${error.toString()}');
       });
     });
   }
@@ -64,9 +70,16 @@ class _SaveReminderState extends State<_SaveReminder> {
 }
 
 class ReminderEditor extends StatefulWidget {
-  ReminderEditor({@required this.reminder, Key key}) : super(key: key);
-
   final Map<String, dynamic> reminder;
+  final Function(TupleReminder) onSaved;
+  final Function(String) onShowMessage;
+
+  ReminderEditor(
+      {@required this.reminder,
+      @required this.onSaved,
+      @required this.onShowMessage,
+      Key key})
+      : super(key: key);
 
   @override
   _ReminderEditorState createState() => _ReminderEditorState();
@@ -96,17 +109,38 @@ class _ReminderEditorState extends State<ReminderEditor> {
     });
   }
 
+  /// Internal onSaved to copy the save results and pop the save dialog.
+  void _onSaved(BuildContext ctx, TupleReminder t) {
+    // Update the local reminder.
+    String msg = 'ReminderEditorState: saving reminder to local copy.';
+    print(msg);
+    if (t != null)
+      t.reminder.forEach((key, value) => widget.reminder[key] = value);
+
+    // update the current display in case the parent doesn't pop.
+    print('ReminderEditorState: setState.');
+    setState(() {});
+
+    // Pop the save process indicator dialog.
+    print('ReminderEditorState: popping save process indicator dialog.');
+    Navigator.of(ctx).pop(t);
+  }
+
   void _save(BuildContext ctx) async {
     widget.reminder[fieldMessage] = _message;
+
+    // Push a dialog to show a process indicator while saving.
     TupleReminder t = await showDialog<TupleReminder>(
         context: ctx,
         builder: (BuildContext ctx) {
-          return _SaveReminder(widget.reminder);
+          return _SaveReminder(widget.reminder, onSaved: (TupleReminder t) {
+            _onSaved(ctx, t);
+          }, onShowMessage: widget.onShowMessage);
         });
-    globalNavigator.pop(t);
-    if (t != null)
-      t.reminder.forEach((key, value) => widget.reminder[key] = value);
-    setState(() {});
+
+    // Notify the parent when the indicator dialog closes.
+    print('ReminderEditorState: notifying parent of saved reminder.');
+    widget.onSaved(t);
   }
 
   Widget _getBody(BuildContext ctx) {
@@ -132,12 +166,14 @@ class _ReminderEditorState extends State<ReminderEditor> {
         appBar: AppBar(
           title: Text("Edit Reminder"),
           actions: <Widget>[
-            IconButton(
-                icon: const Icon(Icons.save),
-                tooltip: 'Save',
-                onPressed: () async {
-                  _save(ctx);
-                })
+            Builder(builder: (BuildContext ctx) {
+              return IconButton(
+                  icon: const Icon(Icons.save),
+                  tooltip: 'Save',
+                  onPressed: () {
+                    _save(ctx);
+                  });
+            })
           ],
         ),
         body: _getBody(ctx));

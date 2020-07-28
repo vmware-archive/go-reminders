@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:ui/app/navigation.dart';
-
 const String ApiBase = '/api/reminders';
 
 const String _sharedPreferencesTitle = 'Settings';
@@ -29,7 +27,15 @@ class AppSettings {
 }
 
 class Settings extends StatefulWidget {
-  Settings({Key key}) : super(key: key);
+  final Function(bool) onSaved;
+
+  void _onSaved(bool b) {
+    if (onSaved != null) {
+      onSaved(b);
+    }
+  }
+
+  Settings({Function(bool) this.onSaved, Key key}) : super(key: key);
 
   @override
   _SettingsState createState() => _SettingsState();
@@ -71,25 +77,26 @@ class _SettingsState extends State<Settings> {
 
   void _save(BuildContext ctx) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('apiHost', _apiHost);
-    await prefs.setInt('apiPort', _apiPort);
-    globalNavigator.pop(null);
+    bool b = await prefs.setString('apiHost', _apiHost) &&
+        await prefs.setInt('apiPort', _apiPort);
+    widget._onSaved(b);
   }
 
-  Future<void> _invalidPort(String port) async {
+  Future<void> _invalidPort(BuildContext ctx, String port) async {
     return showDialog<void>(
-      context: context,
+      context: ctx,
       barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
+      builder: (BuildContext ctx) {
         return AlertDialog(
           title: Text('Invalid Port Specification'),
           content: SingleChildScrollView(
-              child: Text('$port is not a valid integer between 1 and 65536.')),
+              child:
+                  Text('Port "$port" is not an integer between 1 and 65536.')),
           actions: <Widget>[
             FlatButton(
-              child: Icon(Icons.check),
+              child: Icon(Icons.check, color: Colors.red),
               onPressed: () {
-                globalNavigator.pop(null);
+                Navigator.of(ctx).pop();
               },
             ),
           ],
@@ -98,14 +105,14 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  void portChanged(String text) {
+  void portChanged(BuildContext ctx, String text) {
     int port = int.parse(text, onError: (text) {
-      _invalidPort(text);
+      _invalidPort(ctx, text);
       tecPort.text = _apiPort.toString();
       return _apiPort;
     });
     if (port < 0 || port > 65535) {
-      _invalidPort(tecPort.text);
+      _invalidPort(ctx, tecPort.text);
       tecPort.text = _apiPort.toString();
     } else {
       _apiPort = port;
@@ -120,7 +127,7 @@ class _SettingsState extends State<Settings> {
             icon: const Icon(Icons.save),
             tooltip: 'Save',
             onPressed: () {
-              _save(context);
+              _save(ctx);
             },
           ),
         ]),
@@ -142,7 +149,9 @@ class _SettingsState extends State<Settings> {
                   labelText: 'IP Port number',
                   hintText: 'Enter a valid IP port',
                   helperText: 'Port on which go-reminders server is listening'),
-              onChanged: portChanged,
+              onChanged: (text) {
+                portChanged(ctx, text);
+              },
               keyboardType: TextInputType.number,
               autocorrect: false,
               textAlign: TextAlign.left)

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-import 'package:ui/app/navigation.dart';
 import 'package:ui/reminders/requests.dart';
 import 'package:ui/reminders/edit.dart';
 
@@ -14,11 +13,14 @@ const String _fieldUpdatedAt = 'updatedAt';
 class _ReminderList extends InheritedWidget {
   final List<Map<String, dynamic>> reminders;
 
-  _ReminderList({Key key, @required this.reminders, @required Widget child})
-      : super(key: key, child: child);
+  _ReminderList({
+    Key key,
+    @required this.reminders,
+    @required Widget child,
+  }) : super(key: key, child: child);
 
-  static _ReminderList of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_ReminderList>();
+  static _ReminderList of(BuildContext ctx) {
+    return ctx.dependOnInheritedWidgetOfExactType<_ReminderList>();
   }
 
   @override
@@ -27,22 +29,23 @@ class _ReminderList extends InheritedWidget {
 
 class _DismissableReminder extends StatefulWidget {
   final Map<String, dynamic> _reminder;
-  ReminderCallback _remove;
-  ReminderCallback _update;
+  final ReminderCallback onRemove;
+  final ReminderCallback onUpdate;
+  final Function(String) onShowMessage;
 
   _DismissableReminder(this._reminder,
-      {ReminderCallback remove, ReminderCallback update, Key key})
-      : super(key: key) {
-    _remove = (_remove == null) ? remove : null;
-    _update = (_update == null) ? update : null;
-  }
+      {@required this.onRemove,
+      @required this.onUpdate,
+      @required this.onShowMessage,
+      Key key})
+      : super(key: key);
 
   void remove() {
-    if (_remove != null) _remove(_reminder);
+    onRemove(_reminder);
   }
 
   void update() {
-    if (_update != null) _update(_reminder);
+    onUpdate(_reminder);
   }
 
   @override
@@ -85,13 +88,25 @@ class _DismissableReminderState extends State<_DismissableReminder> {
     _setState(_reminderState.normal);
   }
 
-  void _edit() {
+  void _onSaved(BuildContext ctx, TupleReminder t) {
+    print('_DissmissableReminderState: popping ReminderEditor.');
+    Navigator.of(ctx).pop(t);
+  }
+
+  void _edit(BuildContext ctx) {
     setState(() {
       _setState(_reminderState.editing);
     });
-    globalNavigator
-        .push(ReminderEditor(reminder: widget._reminder))
-        .then((data) {
+    Navigator.of(ctx).push(MaterialPageRoute(builder: (BuildContext ctx) {
+      return ReminderEditor(
+          reminder: widget._reminder,
+          onShowMessage: (String msg) {
+            widget.onShowMessage(msg);
+          },
+          onSaved: (TupleReminder t) {
+            _onSaved(ctx, t);
+          });
+    })).then((data) {
       if (data == null) {
         print('edit returned null ReminderTuple');
       } else {
@@ -107,8 +122,6 @@ class _DismissableReminderState extends State<_DismissableReminder> {
     }).catchError((error) {
       String msg = 'Error editing reminder: ${error.toString()}';
       print(msg);
-      globalNavigator
-          .showSnackBar('Error editing reminder: ${error.toString()}');
     });
   }
 
@@ -132,12 +145,10 @@ class _DismissableReminderState extends State<_DismissableReminder> {
           _undelete();
           msg = snapshot.error.toString();
         } else if (t.httpStatus != HttpStatus.ok) {
-          Scaffold.of(ctx).showSnackBar(
-              SnackBar(content: Text('Delete failed: ${snapshot.error}')));
+          widget.onShowMessage('Delete failed: ${snapshot.error}');
           msg = t.reminder[fieldMessage];
         } else {
-          Scaffold.of(ctx).showSnackBar(
-              SnackBar(content: Text('Deleted: ${t.reminder[fieldGuid]}')));
+          widget.onShowMessage('Deleted: ${t.reminder[fieldGuid]}');
         }
 
         w = msg == null
@@ -172,7 +183,7 @@ class _DismissableReminderState extends State<_DismissableReminder> {
             if (direction == DismissDirection.endToStart)
               _delete();
             else if (direction == DismissDirection.startToEnd) {
-              _edit();
+              _edit(ctx);
             }
           },
           background: Container(
@@ -187,7 +198,9 @@ class _DismissableReminderState extends State<_DismissableReminder> {
 }
 
 class ReminderQuery extends StatefulWidget {
-  ReminderQuery({Key key}) : super(key: key);
+  final Function(String) onShowMessage;
+
+  ReminderQuery({this.onShowMessage, Key key}) : super(key: key);
 
   @override
   ReminderQueryState createState() => ReminderQueryState();
@@ -267,8 +280,9 @@ class ReminderQueryState extends State<ReminderQuery> {
                       itemCount: _reminders.length,
                       itemBuilder: (BuildContext ctx, int index) {
                         return _DismissableReminder(_reminders[index],
-                            remove: _removeReminder,
-                            update: _updateReminder,
+                            onShowMessage: widget.onShowMessage,
+                            onRemove: _removeReminder,
+                            onUpdate: _updateReminder,
                             key: Key(_reminders[index][fieldGuid]));
                       }),
                   onRefresh: onRefresh));
