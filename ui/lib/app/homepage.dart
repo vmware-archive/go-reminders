@@ -12,13 +12,26 @@ class HomePage extends StatelessWidget {
   HomePage(this.title, {Key key}) : super(key: key);
 
   void _onShowMessage(BuildContext ctx, String msg) {
-    //Scaffold.of(ctx).showSnackBar(SnackBar(content: Text(msg)));
-    print(msg);
+    ScaffoldState s;
+
+    try {
+      s = Scaffold.of(ctx);
+    } catch (e) {
+      print(
+          'HomePage._onShowMessage: Scaffold not found for BuildContext $ctx.toString().');
+      print(e.toString());
+    }
+
+    if (s == null) {
+      print(msg);
+    } else {
+      Scaffold.of(ctx).showSnackBar(SnackBar(content: Text(msg)));
+    }
   }
 
   void _onSaved(BuildContext ctx, TupleReminder t) {
     print('HomePage: popping ReminderEditor.');
-    //_onShowMessage(ctx, 'Saved new reminder: ${t.reminder[fieldGuid]}.');
+    _onShowMessage(ctx, 'Saved new reminder: ${t.reminder[fieldGuid]}.');
     Navigator.of(ctx).pop(t);
   }
 
