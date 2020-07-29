@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:ui/app/navigation.dart';
 import 'package:ui/app/homepage.dart';
 
 class MyApp extends StatelessWidget {
@@ -11,7 +10,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomePage('Go-Reminders'),
-        navigatorKey: globalNavigator.key());
+        home: HomePage('Go-Reminders'));
   }
 }
