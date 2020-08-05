@@ -68,6 +68,7 @@ class _DismissableReminderState extends State<_DismissableReminder> {
 
     // If deleted, or does not exist (already deleted), remove this reminder completely
     if (t.httpStatus == HttpStatus.ok || t.httpStatus == HttpStatus.notFound) {
+      widget.onShowMessage('Deleted: ${widget._reminder[fieldGuid]}');
       widget.remove();
     }
 
@@ -128,39 +129,34 @@ class _DismissableReminderState extends State<_DismissableReminder> {
   Widget _buildDeletingReminder(
       BuildContext ctx, AsyncSnapshot<TupleReminder> snapshot) {
     Widget w;
+    String msg;
 
-    switch (snapshot.connectionState) {
-      case ConnectionState.none:
-      case ConnectionState.waiting:
-      case ConnectionState.active:
+    if (snapshot.hasData) {
+      TupleReminder t = snapshot.data;
+      if (t.httpStatus == HttpStatus.ok ||
+          t.httpStatus == HttpStatus.notFound) {
+        // The reminder was removed from the server and the widget tree (the
+        // future completed with data); the user was already notified so no
+        // need to do anything here other than fill the widget.
         w = Center(
             child: Icon(Icons.remove_circle, color: Colors.red, size: 30.0));
-        break;
-      case ConnectionState.done:
-        TupleReminder t = snapshot.data;
-        String msg;
-
-        if (snapshot.hasError) {
-          // undelete because the delete request failed somehow
-          _undelete();
-          msg = snapshot.error.toString();
-        } else if (t.httpStatus != HttpStatus.ok) {
-          widget.onShowMessage('Delete failed: ${snapshot.error}');
-          msg = t.reminder[fieldMessage];
-        } else {
-          widget.onShowMessage('Deleted: ${t.reminder[fieldGuid]}');
-        }
-
-        w = msg == null
-            ? Center(
-                child: Icon(Icons.remove_circle, color: Colors.red, size: 30.0))
-            : Center(
-                child: Row(children: <Widget>[
-                Icon(Icons.sync_problem, color: Colors.red, size: 30.0),
-                Expanded(child: Text(msg, style: TextStyle(color: Colors.red)))
-              ]));
-
-        break;
+      } else {
+        widget.onShowMessage('Delete failed: ${t.reminder[fieldMessage]}.');
+        _undelete();
+        Center(
+            child: Row(children: <Widget>[
+          Icon(Icons.sync_problem, color: Colors.red, size: 30.0),
+          Expanded(child: Text(msg, style: TextStyle(color: Colors.red)))
+        ]));
+      }
+    } else if (snapshot.hasError) {
+      // Undelete because the delete request failed somehow.
+      _undelete();
+      widget.onShowMessage('Delete failed: ${snapshot.error.toString()}.');
+    } else {
+      // No data or error yet, still deleting from the server.
+      w = Center(
+          child: Icon(Icons.remove_circle, color: Colors.red, size: 30.0));
     }
 
     return w;

@@ -5,9 +5,42 @@ import 'package:ui/reminders/list.dart';
 import 'package:ui/reminders/edit.dart';
 import 'package:ui/reminders/requests.dart';
 
+final GlobalKey<ReminderQueryState> _keyReminderQuery = GlobalKey();
+
+class _NewReminderAction extends StatelessWidget {
+  void _onAdd(BuildContext ctx) {
+    Map<String, dynamic> reminder = Map<String, dynamic>();
+    Navigator.of(ctx)
+        .push(MaterialPageRoute(
+            builder: (innerCtx) => ReminderEditor(
+                reminder: reminder,
+                onShowMessage: (String msg) {
+                  Scaffold.of(ctx).showSnackBar(SnackBar(content: Text(msg)));
+                },
+                onSaved: (TupleReminder t) {
+                  print('_NewReminder: popping ReminderEditor.');
+                  Navigator.of(ctx).pop(t);
+                })))
+        .then((data) {
+      _keyReminderQuery.currentState.onRefresh();
+    }).catchError((error) {
+      print('Caught error in _onAdd');
+    });
+  }
+
+  @override
+  Widget build(BuildContext ctx) {
+    return IconButton(
+        icon: const Icon(Icons.add),
+        tooltip: 'New Reminder',
+        onPressed: () {
+          _onAdd(ctx);
+        });
+  }
+}
+
 class HomePage extends StatelessWidget {
   final String title;
-  final GlobalKey<ReminderQueryState> _keyReminderQuery = GlobalKey();
 
   HomePage(this.title, {Key key}) : super(key: key);
 
@@ -29,31 +62,6 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  void _onSaved(BuildContext ctx, TupleReminder t) {
-    print('HomePage: popping ReminderEditor.');
-    _onShowMessage(ctx, 'Saved new reminder: ${t.reminder[fieldGuid]}.');
-    Navigator.of(ctx).pop(t);
-  }
-
-  void _onAdd(BuildContext ctx) {
-    Map<String, dynamic> reminder = Map<String, dynamic>();
-    Navigator.of(ctx)
-        .push(MaterialPageRoute(
-            builder: (innerCtx) => ReminderEditor(
-                reminder: reminder,
-                onShowMessage: (String msg) {
-                  _onShowMessage(innerCtx, msg);
-                },
-                onSaved: (TupleReminder t) {
-                  _onSaved(innerCtx, t);
-                })))
-        .then((data) {
-      onRefresh();
-    }).catchError((error) {
-      print('Caught error in _onAdd');
-    });
-  }
-
   void _onSettings(BuildContext ctx) {
     Navigator.of(ctx).push(MaterialPageRoute(
         builder: (context) => Settings(onSaved: (b) {
@@ -71,13 +79,7 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           title: Text(title),
           actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: 'New Reminder',
-              onPressed: () {
-                _onAdd(ctx);
-              },
-            ),
+            _NewReminderAction(),
             IconButton(
               icon: const Icon(Icons.refresh),
               tooltip: 'Refresh',
